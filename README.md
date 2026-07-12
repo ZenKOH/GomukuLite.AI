@@ -35,6 +35,9 @@ That is all. It works from:
 - Lightweight AI Coach profile
 - JSON export/import for game and profile state
 - Keyboard-accessible board controls
+- End-game declaration for Victory, Defeat, Black wins, White wins or Draw
+- Glowing highlight on the winning stone line
+- Offline Web Audio win/lose/draw jingles with a mute option
 - No external scripts, fonts, images, telemetry, CDN calls or server calls
 
 ## Why this exists
@@ -63,7 +66,8 @@ A PWA depends on a browser-managed first-load cache and served assets. GomukuLit
 2. **Lite means no dependency stack.** Everything needed to run is in one file.
 3. **Useful AI beats cosmetic difficulty labels.** Each level changes search depth, candidate width, blunder probability and noise.
 4. **Training matters.** The Academy teaches patterns rather than only casual play.
-5. **Private by default.** Profile data remains in the browser unless exported by the user.
+5. **Feedback matters.** Completed games give clear visual, textual and audio closure.
+6. **Private by default.** Profile data remains in the browser unless exported by the user.
 
 ## Limitations
 
