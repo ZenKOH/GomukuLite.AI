@@ -24,14 +24,13 @@ GomukuLite.AI avoids those assumptions by putting CSS, UI, game logic, AI, Acade
 
 - Single-file `index.html`
 - 15×15 responsive board
-- Visible coordinate markings outside the board: columns A–O and rows 15–1
 - Freestyle and Standard rules
 - AI ladder from Novice to Master
 - Candidate generation near occupied stones
 - Heuristic evaluation across rows, columns and diagonals
 - Alpha-beta minimax for stronger levels
 - Small transposition cache inside each AI turn
-- Two-player local mode
+- Two-player duel mode with explicit Black/White outcome declarations
 - Hint system
 - Undo
 - Move log
@@ -41,7 +40,7 @@ GomukuLite.AI avoids those assumptions by putting CSS, UI, game logic, AI, Acade
 - Keyboard-accessible board
 - Zero external assets
 
-## Coordinate marking upgrade
+## Visible board coordinate upgrade
 
 The latest build adds visible board coordinates outside the playable grid.
 
@@ -57,7 +56,7 @@ The build removes the static outcome reminder note from the sidebar and replaces
 
 The commentary is generated locally from the current board state and explains each move in practical tactical language:
 
-- whether the move completed a win;
+- whether the move completed a win or settled a two-player duel;
 - whether the next urgent task is defence;
 - whether a forcing continuation is available;
 - where the strongest follow-up candidate appears;
@@ -77,7 +76,7 @@ Exact wording remains:
 - Local two-player mode, White wins: `White wins!`
 - Full board: `Draw game.`
 
-The status pill, board overlay and move log all remain aligned to the same outcome logic.
+The status pill, board overlay, move log and commentary panel all remain aligned to the same outcome logic. In two-player duel mode, the declaration is always `Black wins!` or `White wins!`, never a generic win/lose message.
 
 ## End-game and tutorial feedback upgrade
 
@@ -133,4 +132,3 @@ The end-game jingle uses Web Audio rather than bundled audio files to preserve t
 7. Add offline print mode for classroom worksheets.
 8. Add a settings panel for alternate sound themes and colour-blind-safe highlight palettes.
 9. Add richer post-game move review with move-by-move mistake classification.
-10. Add optional coordinate preferences for alternative board notation conventions.
