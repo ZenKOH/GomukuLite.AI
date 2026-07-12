@@ -26,7 +26,7 @@ That is all. It works from:
 - Freestyle rule: five or more contiguous stones wins
 - Standard rule: exactly five contiguous stones wins
 - AI levels: Novice, Beginner, Intermediate, Advanced, Expert and Master
-- Heuristic alpha-beta AI with candidate ordering and a small transposition cache
+- Stronger tactical AI: immediate win detection, compulsory four-in-a-row blocking, fork creation, alpha-beta search, candidate ordering and a small transposition cache
 - Local two-player duel mode with explicit **Black wins!** / **White wins!** declarations
 - Master hint
 - Undo
@@ -71,11 +71,12 @@ A PWA depends on a browser-managed first-load cache and served assets. GomukuLit
 
 1. **Offline means direct-open capable.** No server or cache lifecycle is required.
 2. **Lite means no dependency stack.** Everything needed to run is in one file.
-3. **Useful AI beats cosmetic difficulty labels.** Each level changes search depth, candidate width, blunder probability and noise.
-4. **Training matters.** The Academy teaches patterns rather than only casual play.
-5. **Feedback matters.** Completed games give clear visual, textual and audio closure with exact outcome wording.
-6. **Duel clarity matters.** Local two-player games are declared as **Black wins!** or **White wins!**, not generic win/lose messages.
-7. **Private by default.** Profile data remains in the browser unless exported by the user.
+3. **Competent AI before cosmetic difficulty.** Every level now checks immediate wins and compulsory blocks before applying search depth, candidate width, noise or blunder settings.
+4. **Analysis should replace passive notes.** The sidebar now provides tactical commentary instead of static outcome reminders.
+5. **Training matters.** The Academy teaches patterns rather than only casual play.
+6. **Feedback matters.** Completed games give clear visual, textual and audio closure with exact outcome wording.
+7. **Duel clarity matters.** Local two-player games are declared as **Black wins!** or **White wins!**, not generic win/lose messages.
+8. **Private by default.** Profile data remains in the browser unless exported by the user.
 
 ## Limitations
 
