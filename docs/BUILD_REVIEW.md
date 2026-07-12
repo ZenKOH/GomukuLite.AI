@@ -40,6 +40,19 @@ GomukuLite.AI avoids those assumptions by putting CSS, UI, game logic, AI, Acade
 - Keyboard-accessible board
 - Zero external assets
 
+## End-game feedback upgrade
+
+The latest build adds a clearer end-game moment when a match completes:
+
+- winning-line detection now returns the exact contiguous line that satisfied the selected ruleset;
+- the winning stones receive a pulsing glow animation;
+- the side panel shows a declaration such as `Victory! You win.`, `Defeat. The AI wins.`, `Black wins!`, `White wins!` or `Draw game.`;
+- Web Audio jingles play locally for win, loss and draw outcomes;
+- a Jingle selector lets the player mute sounds without affecting the offline build;
+- reduced-motion users still see the static highlight without animation.
+
+The audio is generated with browser oscillators. There are no sound files, CDN calls or external media assets.
+
 ## Why the implementation is intentionally constrained
 
 The purpose of GomukuLite.AI is reliability and portability, not maximum engine strength. It should work when copied to a USB drive and opened directly.
@@ -63,6 +76,8 @@ The Academy positions are generated from transformed motifs rather than stored a
 
 The local coach is deliberately lightweight. It uses games, puzzle attempts, hints and simple play-style signals rather than pretending to infer a sophisticated psychological profile from sparse data.
 
+The end-game jingle uses Web Audio rather than bundled audio files to preserve the one-file offline guarantee. Some browsers may require the user to interact with the page before audio can play; the game resumes/initialises audio during player actions.
+
 ## Future improvements
 
 1. Add a headless-browser smoke test for `index.html`.
@@ -72,9 +87,4 @@ The local coach is deliberately lightweight. It uses games, puzzle attempts, hin
 5. Add optional Web Worker AI while preserving the no-build fallback.
 6. Add more hand-authored tactical motifs.
 7. Add offline print mode for classroom worksheets.
-
-## Validation performed
-
-The standalone JavaScript embedded in `index.html` was extracted and syntax-checked with Node before committing.
-
-Because the app is dependency-free, there is no `npm install`, `npm run build` or runtime server required for the Lite build.
+8. Add a settings panel for alternate sound themes and colour-blind-safe highlight palettes.
