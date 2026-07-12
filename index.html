@@ -25,7 +25,14 @@
     .layout{display:grid;grid-template-columns:minmax(330px,1fr) 400px;gap:18px}
     .card{background:linear-gradient(180deg,rgba(18,36,31,.97),rgba(9,16,14,.97));border:1px solid var(--line);border-radius:24px;padding:18px;box-shadow:var(--shadow)}
     .boardWrap{display:flex;justify-content:center;align-items:center;min-height:320px;position:relative;overflow:hidden}
-    .board{--cell:min(4.45vw,42px);display:grid;grid-template-columns:repeat(15,var(--cell));grid-template-rows:repeat(15,var(--cell));padding:18px;border-radius:22px;background:linear-gradient(135deg,var(--board),var(--board2));position:relative;box-shadow:inset 0 0 0 2px rgba(58,34,5,.28),var(--shadow);touch-action:manipulation}
+    .boardFrame{--cell:min(4.45vw,42px);display:grid;grid-template-columns:30px auto 30px;grid-template-rows:28px auto 28px;align-items:center;justify-content:center;gap:4px;position:relative}
+    .board{grid-column:2;grid-row:2;display:grid;grid-template-columns:repeat(15,var(--cell));grid-template-rows:repeat(15,var(--cell));padding:18px;border-radius:22px;background:linear-gradient(135deg,var(--board),var(--board2));position:relative;box-shadow:inset 0 0 0 2px rgba(58,34,5,.28),var(--shadow);touch-action:manipulation}
+    .coordRow{grid-column:2;display:grid;grid-template-columns:repeat(15,var(--cell));justify-self:center;width:calc(var(--cell)*15);height:28px;align-items:center;text-align:center;color:#ffe7aa;font-size:.78rem;font-weight:900;letter-spacing:.04em;text-shadow:0 1px 3px rgba(0,0,0,.58);user-select:none}
+    .coordTop{grid-row:1}.coordBottom{grid-row:3}
+    .coordCol{grid-row:2;display:grid;grid-template-rows:repeat(15,var(--cell));align-self:center;height:calc(var(--cell)*15);width:30px;align-items:center;justify-items:center;color:#ffe7aa;font-size:.78rem;font-weight:900;text-shadow:0 1px 3px rgba(0,0,0,.58);user-select:none}
+    .coordLeft{grid-column:1}.coordRight{grid-column:3}
+    .coordCorner{width:30px;height:28px}
+    .coordCorner.tl{grid-column:1;grid-row:1}.coordCorner.tr{grid-column:3;grid-row:1}.coordCorner.bl{grid-column:1;grid-row:3}.coordCorner.br{grid-column:3;grid-row:3}
     .cell{position:relative;width:var(--cell);height:var(--cell);border:0;background:transparent;padding:0;color:transparent}
     .cell:before{content:"";position:absolute;left:0;right:0;top:50%;height:1px;background:rgba(59,36,10,.55)}
     .cell:after{content:"";position:absolute;top:0;bottom:0;left:50%;width:1px;background:rgba(59,36,10,.55)}
@@ -62,8 +69,8 @@
     .scenarioList{display:grid;grid-template-columns:1fr 1fr;gap:8px;max-height:260px;overflow:auto}.scenario{background:#08110f;color:var(--text);border:1px solid var(--line);border-radius:14px;padding:9px;text-align:left}.scenario.active{border-color:var(--gold);background:#1c2316}.scenario b{display:block}.scenario small{color:var(--muted)}
     .coach,.learn,.about{display:grid;gap:10px}.coach article,.learn article,.about article{background:#091411;border:1px solid var(--line);border-radius:16px;padding:14px}.coach h3,.learn h3,.about h3{margin:0 0 6px}.coach p,.learn p,.about p{margin:0;color:var(--muted);line-height:1.45}
     textarea{height:135px;resize:vertical}.footer{margin-top:16px;display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;color:var(--muted);font-size:.9rem}.pill{display:inline-flex;align-items:center;gap:7px;border:1px solid var(--line);border-radius:999px;padding:6px 9px}.dot{width:10px;height:10px;border-radius:50%;background:var(--green)}
-    @media(max-width:960px){.layout{grid-template-columns:1fr}.top{align-items:flex-start;flex-direction:column}.board{--cell:min(5.8vw,39px)}.metrics{grid-template-columns:1fr}.scenarioList{grid-template-columns:1fr}}
-    @media(max-width:560px){.app{padding:12px}.card{padding:14px}.board{--cell:calc((100vw - 64px)/15);padding:12px}.row,.actions{grid-template-columns:1fr}}
+    @media(max-width:960px){.layout{grid-template-columns:1fr}.top{align-items:flex-start;flex-direction:column}.boardFrame{--cell:min(5.8vw,39px)}.metrics{grid-template-columns:1fr}.scenarioList{grid-template-columns:1fr}}
+    @media(max-width:560px){.app{padding:12px}.card{padding:14px}.boardFrame{--cell:calc((100vw - 112px)/15);grid-template-columns:24px auto 24px;grid-template-rows:24px auto 24px;gap:3px}.board{padding:12px}.coordRow{height:24px;font-size:.68rem}.coordCol{width:24px;font-size:.68rem}.row,.actions{grid-template-columns:1fr}}
     @media(prefers-reduced-motion:reduce){.cell.winning .stone,.declaration.show{animation:none}}
   </style>
 </head>
@@ -82,9 +89,19 @@
         <div id="declaration" class="declaration" role="status" aria-live="assertive">
           <h2 id="declareTitle"></h2><p id="declareText"></p>
         </div>
-        <div id="board" class="board" role="grid" aria-label="Gomoku board"></div>
+        <div class="boardFrame" aria-label="Board coordinates A to O and 15 to 1">
+          <div class="coordCorner tl" aria-hidden="true"></div>
+          <div id="colsTop" class="coordRow coordTop" aria-hidden="true"></div>
+          <div class="coordCorner tr" aria-hidden="true"></div>
+          <div id="rowsLeft" class="coordCol coordLeft" aria-hidden="true"></div>
+          <div id="board" class="board" role="grid" aria-label="Gomoku board with columns A to O and rows 15 to 1"></div>
+          <div id="rowsRight" class="coordCol coordRight" aria-hidden="true"></div>
+          <div class="coordCorner bl" aria-hidden="true"></div>
+          <div id="colsBottom" class="coordRow coordBottom" aria-hidden="true"></div>
+          <div class="coordCorner br" aria-hidden="true"></div>
+        </div>
       </div>
-      <p class="micro">Keyboard: Tab to a cell, arrow keys move focus, Enter or Space places a stone. Black moves first.</p>
+      <p class="micro">Coordinates: columns A–O and rows 15–1 are shown outside the board. Keyboard: Tab to a cell, arrow keys move focus, Enter or Space places a stone.</p>
     </section>
     <aside class="card">
       <div id="analysis" class="analysis"><h3>AI move commentary</h3><p>Start a game or Academy position to receive tactical commentary after each move.</p></div>
@@ -132,27 +149,19 @@
 <script>
 (function(){
 'use strict';
-
-const SIZE=15, EMPTY=0, BLACK=1, WHITE=2, DIRS=[[0,1],[1,0],[1,1],[1,-1]];
+const SIZE=15,EMPTY=0,BLACK=1,WHITE=2,DIRS=[[0,1],[1,0],[1,1],[1,-1]];
 const STORE='gomukulitedotai-profile-v3';
-const LEVELS={
-  Novice:{depth:0,limit:7,noise:900,blunder:.30},
-  Beginner:{depth:1,limit:9,noise:450,blunder:.14},
-  Intermediate:{depth:2,limit:11,noise:160,blunder:.05},
-  Advanced:{depth:2,limit:16,noise:60,blunder:.015},
-  Expert:{depth:3,limit:13,noise:0,blunder:0},
-  Master:{depth:4,limit:11,noise:0,blunder:0}
-};
+const LEVELS={Novice:{depth:0,limit:7,noise:900,blunder:.30},Beginner:{depth:1,limit:9,noise:450,blunder:.14},Intermediate:{depth:2,limit:11,noise:160,blunder:.05},Advanced:{depth:2,limit:16,noise:60,blunder:.015},Expert:{depth:3,limit:13,noise:0,blunder:0},Master:{depth:4,limit:11,noise:0,blunder:0}};
 const CHAPTERS=['Opening balance','Immediate wins','Essential blocks','Open threes','Open fours','Forks','Counterplay','Shape building','Diagonal shifts','Prophylaxis','Calculation','Master patterns'];
 const LESSONS=[
-  ['Goal','Place stones on intersections. Five contiguous stones wins in Freestyle; exactly five wins in Standard.'],
-  ['AI move commentary','After each move, the local analysis engine explains whether the move wins, blocks, creates a threat, or leaves a tactical opportunity.'],
-  ['Move order','Check immediate win, urgent block, forcing threat, then positional improvement.'],
-  ['Threats','An open four has two winning points. A closed four has one. Open threes become threats if ignored.'],
-  ['Defence','Good defence blocks the opponent while improving one of your own lines.'],
-  ['Calculation','Force first. Every forcing move reduces the opponent’s useful choices.']
+ ['Goal','Place stones on intersections. Five contiguous stones wins in Freestyle; exactly five wins in Standard.'],
+ ['Coordinates','Columns A–O and rows 15–1 are shown outside the board so moves can be discussed without covering intersections.'],
+ ['Win declaration','Completed games declare Victory, Defeat, Black wins, White wins, or Draw, with a jingle and glowing winning stones.'],
+ ['Move order','Check immediate win, urgent block, forcing threat, then positional improvement.'],
+ ['Threats','An open four has two winning points. A closed four has one. Open threes become threats if ignored.'],
+ ['Defence','Good defence blocks the opponent while improving one of your own lines.'],
+ ['Calculation','Force first. Every forcing move reduces the opponent’s useful choices.']
 ];
-
 function $(id){return document.getElementById(id)}
 function emptyBoard(){return Array.from({length:SIZE},()=>Array(SIZE).fill(EMPTY))}
 function clone(b){return b.map(r=>r.slice())}
@@ -161,12 +170,20 @@ function other(p){return p===BLACK?WHITE:BLACK}
 function nameOf(p){return p===BLACK?'Black':'White'}
 function notation(p){return String.fromCharCode(65+p.c)+(SIZE-p.r)}
 function star(r,c){return (r===3||r===7||r===11)&&(c===3||c===7||c===11)}
+function initCoordinates(){
+  const letters=Array.from({length:SIZE},(_,i)=>String.fromCharCode(65+i));
+  const numbers=Array.from({length:SIZE},(_,i)=>String(SIZE-i));
+  const cell=s=>'<span>'+s+'</span>';
+  $('colsTop').innerHTML=letters.map(cell).join('');
+  $('colsBottom').innerHTML=letters.map(cell).join('');
+  $('rowsLeft').innerHTML=numbers.map(cell).join('');
+  $('rowsRight').innerHTML=numbers.map(cell).join('');
+}
 function defaultProfile(){return{games:0,wins:0,losses:0,hints:0,puzzlesSolved:0,puzzleAttempts:0,attackMoves:0,defenceMoves:0,bestStreak:0,currentStreak:0}}
 function loadProfile(){try{return Object.assign(defaultProfile(),JSON.parse(localStorage.getItem(STORE)||'{}'))}catch(e){return defaultProfile()}}
 function saveProfile(){localStorage.setItem(STORE,JSON.stringify(profile))}
-
-let board=emptyBoard(), turn=BLACK, winner=EMPTY, moves=[], hint=null, solution=null, last=null, nodes=0, academy=null, profile=loadProfile(), thinking=false, winningCells=[], audioCtx=null;
-
+let board=emptyBoard(),turn=BLACK,winner=EMPTY,moves=[],hint=null,solution=null,last=null,nodes=0,academy=null,profile=loadProfile(),thinking=false,winningCells=[];
+let audioCtx=null;
 function status(text){$('status').textContent=text}
 function log(text){const d=document.createElement('div');d.textContent=text;$('log').prepend(d)}
 function lineLength(b,p,player,dr,dc){let n=1;for(const s of[-1,1]){let r=p.r+dr*s,c=p.c+dc*s;while(inBounds(r,c)&&b[r][c]===player){n++;r+=dr*s;c+=dc*s}}return n}
@@ -184,7 +201,8 @@ function minimax(b,depth,alpha,beta,maxing,ai,lastMove,cache){nodes++;if(lastMov
 function chooseAI(b,player,level){const s=LEVELS[level]||LEVELS.Intermediate;let ranked=scoreMoves(b,player,s.limit);if(!ranked.length)return null;if(Math.random()<s.blunder)return ranked[Math.min(ranked.length-1,2+Math.floor(Math.random()*4))];if(!s.depth){const n=Math.min(5,ranked.length);return ranked[Math.floor(Math.random()*n)]}nodes=0;const cache=new Map();ranked=ranked.map(m=>{const next=clone(b);next[m.r][m.c]=player;const forced=isWin(next,m,player)?20000000:minimax(next,s.depth-1,-Infinity,Infinity,false,player,{r:m.r,c:m.c,player},cache);return{r:m.r,c:m.c,score:forced+(m.score||0)*.01+Math.random()*s.noise}}).sort((a,b)=>b.score-a.score);return ranked[0]}
 function sameCell(a,b){return a&&b&&a.r===b.r&&a.c===b.c}
 function isWinningCell(r,c){return winningCells.some(p=>p.r===r&&p.c===c)}
-function render(){const el=$('board');el.innerHTML='';
+function render(){
+  const el=$('board');el.innerHTML='';
   for(let r=0;r<SIZE;r++){
     for(let c=0;c<SIZE;c++){
       const v=board[r][c];
@@ -243,19 +261,19 @@ function newGame(){board=emptyBoard();turn=BLACK;winner=EMPTY;moves=[];hint=null
 function undo(){if(thinking||!moves.length)return;const n=$('mode').value==='ai'&&moves.length>1?2:1;for(let i=0;i<n;i++)moves.pop();board=emptyBoard();moves.forEach(m=>board[m.r][m.c]=m.player);winner=EMPTY;winningCells=[];last=moves[moves.length-1]||null;turn=moves.length%2?WHITE:BLACK;hint=null;solution=null;academy=null;clearDeclaration();status(nameOf(turn)+' to move.');$('log').innerHTML='';moves.slice().reverse().forEach((m,i)=>log((moves.length-i)+'. '+nameOf(m.player)+' '+notation(m)));render()}
 function hintMove(){if(winner||thinking)return;const best=scoreMoves(board,turn,30)[0];if(!best)return;hint={r:best.r,c:best.c};profile.hints++;status('Master hint: consider '+notation(hint)+'.');render()}
 function rank(){const score=profile.wins*5+profile.puzzlesSolved*2-profile.hints+profile.bestStreak*3;if(score>420)return'Master';if(score>240)return'Expert';if(score>120)return'Tactician';if(score>50)return'Apprentice';return'Rookie'}
-function renderCoach(){const total=Math.max(1,profile.puzzleAttempts);const acc=Math.round(profile.puzzlesSolved/total*100);const wr=Math.round(profile.wins/Math.max(1,profile.games)*100);const style=profile.defenceMoves>profile.attackMoves*1.15?'Guardian':profile.attackMoves>profile.defenceMoves*1.35?'Initiator':acc>72?'Calculator':'Builder';$('coachPanel').innerHTML='<article><h3>'+rank()+' · '+style+'</h3><p>Win rate '+wr+'% across '+profile.games+' AI games. Tactical accuracy '+acc+'% across '+profile.puzzleAttempts+' Academy attempts.</p></article><article><h3>Recommended focus</h3><p>'+(style==='Initiator'?'Block urgent threats before extending attacks.':style==='Guardian'?'Convert defence into counter-threats.':style==='Calculator'?'Study multi-threat forks and long diagonals.':'Build open threes before rushing closed fours.')+'</p></article><article><h3>Move analysis</h3><p>The commentary panel now explains each move in practical terms: win, block, forcing continuation, urgent rival threat or quiet shape improvement.</p></article>'}
+function renderCoach(){const total=Math.max(1,profile.puzzleAttempts);const acc=Math.round(profile.puzzlesSolved/total*100);const wr=Math.round(profile.wins/Math.max(1,profile.games)*100);const style=profile.defenceMoves>profile.attackMoves*1.15?'Guardian':profile.attackMoves>profile.defenceMoves*1.35?'Initiator':acc>72?'Calculator':'Builder';$('coachPanel').innerHTML='<article><h3>'+rank()+' · '+style+'</h3><p>Win rate '+wr+'% across '+profile.games+' AI games. Tactical accuracy '+acc+'% across '+profile.puzzleAttempts+' Academy attempts.</p></article><article><h3>Recommended focus</h3><p>'+(style==='Initiator'?'Block urgent threats before extending attacks.':style==='Guardian'?'Convert defence into counter-threats.':style==='Calculator'?'Study multi-threat forks and long diagonals.':'Build open threes before rushing closed fours.')+'</p></article><article><h3>Coordinate-aware review</h3><p>Moves are displayed with board notation such as H8. The visible A–O and 15–1 coordinate frame makes post-game discussion and coaching easier.</p></article>'}
 function initLearn(){$('learnPanel').innerHTML=LESSONS.map((x,i)=>'<article><h3>'+String(i+1).padStart(2,'0')+' · '+x[0]+'</h3><p>'+x[1]+'</p></article>').join('')+'<article><h3>Standalone design</h3><p>This Lite build intentionally removes online rooms, service-worker assumptions and external assets. It is a direct-open HTML app for clinics, workshops, schools, travel and locked-down computers.</p></article>'}
 function motif(i){const base=[{r:7,c:7,p:BLACK},{r:7,c:8,p:BLACK},{r:7,c:9,p:BLACK},{r:7,c:11,p:BLACK},{r:6,c:7,p:WHITE},{r:8,c:8,p:WHITE},{r:6,c:10,p:WHITE}];const sol={r:7,c:10};if(i%3===1){base.forEach(x=>{const t=x.r;x.r=x.c;x.c=t});const t=sol.r;sol.r=sol.c;sol.c=t}if(i%3===2){base.forEach(x=>{x.r=14-x.r});sol.r=14-sol.r}const offR=(Math.floor(i/3)-1)*2,offC=((i%3)-1)*2;base.forEach(x=>{x.r=Math.max(0,Math.min(14,x.r+offR));x.c=Math.max(0,Math.min(14,x.c+offC))});sol.r=Math.max(0,Math.min(14,sol.r+offR));sol.c=Math.max(0,Math.min(14,sol.c+offC));return{stones:base,solution:sol}}
 function makeScenarios(){const list=[];let id=1;CHAPTERS.forEach((ch,ci)=>{for(let i=0;i<9;i++){const m=motif((ci+i)%9);const b=emptyBoard();m.stones.forEach(s=>b[s.r][s.c]=s.p);list.push({id:id++,chapter:ch,title:ch+' pattern '+(i+1),board:b,player:BLACK,solutions:[m.solution],lesson:'This move completes or creates the forcing line before the opponent can stabilise.'})}});return list}
 const scenarios=makeScenarios();
 function initAcademy(){const chapter=$('chapter');chapter.innerHTML=CHAPTERS.map(c=>'<option>'+c+'</option>').join('');function fill(){const items=scenarios.filter(s=>s.chapter===chapter.value);$('scenarioNo').innerHTML=items.map((s,i)=>'<option value="'+s.id+'">'+String(i+1).padStart(2,'0')+'</option>').join('');$('scenarioList').innerHTML=items.map(s=>'<button class="scenario" data-id="'+s.id+'"><b>#'+s.id+' '+s.title+'</b><small>Black to move · solution hidden</small></button>').join('');document.querySelectorAll('.scenario').forEach(btn=>btn.addEventListener('click',()=>{document.querySelectorAll('.scenario').forEach(b=>b.classList.remove('active'));btn.classList.add('active');$('scenarioNo').value=btn.dataset.id;loadScenario()}))}chapter.addEventListener('change',fill);fill()}
-function loadScenario(){const s=scenarios.find(x=>x.id===Number($('scenarioNo').value))||scenarios[0];board=clone(s.board);turn=s.player;winner=EMPTY;moves=[];last=null;hint=null;solution=null;winningCells=[];academy=s;$('log').innerHTML='';clearDeclaration();setAnalysis('AI tutorial commentary','Find the forcing move for '+nameOf(turn)+'. The commentary will explain the result after your attempt.');status('Academy #'+s.id+': find the strongest move for '+nameOf(turn)+'.');render()}
-function showSolution(){if(!academy)loadScenario();solution=academy.solutions[0];winningCells=[solution];declaration('draw','Tutorial solution','Best move: '+notation(solution)+'.');setAnalysis('AI tutorial commentary','<strong>Solution preview.</strong> The marked point is the forcing move that completes or creates the tactical line.');status('Solution marker: '+notation(solution)+'.');render()}
+function loadScenario(){const s=scenarios.find(x=>x.id===Number($('scenarioNo').value))||scenarios[0];board=clone(s.board);turn=s.player;winner=EMPTY;moves=[];last=null;hint=null;solution=null;winningCells=[];academy=s;$('log').innerHTML='';clearDeclaration();status('Academy #'+s.id+': find the strongest move for '+nameOf(turn)+'.');setAnalysis('AI tutorial commentary','Use the outside coordinates to name candidate moves. Find the forcing move for '+nameOf(turn)+'.');render()}
+function showSolution(){if(!academy)loadScenario();solution=academy.solutions[0];status('Solution marker: '+notation(solution)+'.');setAnalysis('AI tutorial commentary','The highlighted solution is '+notation(solution)+'. Study how it completes or creates the forcing line.');render()}
 function exportJson(){const out={app:'GomukuLite.AI',version:3,exportedAt:new Date().toISOString(),profile,game:{board,moves,turn,winner,winningCells,rules:$('rules').value,mode:$('mode').value,level:$('level').value}};$('dataBox').value=JSON.stringify(out,null,2)}
 function importJson(){try{const data=JSON.parse($('dataBox').value);if(data.profile)profile=Object.assign(defaultProfile(),data.profile);if(data.game){board=data.game.board||emptyBoard();moves=data.game.moves||[];turn=data.game.turn||BLACK;winner=data.game.winner||EMPTY;winningCells=data.game.winningCells||[];last=moves[moves.length-1]||null;if(data.game.rules)$('rules').value=data.game.rules;if(data.game.mode)$('mode').value=data.game.mode;if(data.game.level)$('level').value=data.game.level}saveProfile();status('Imported JSON.');clearDeclaration();render()}catch(e){status('Import failed: invalid JSON.')}}
 function copyMoves(){const text=moves.map((m,i)=>(i+1)+'. '+nameOf(m.player)+' '+notation(m)).join('\n');navigator.clipboard&&navigator.clipboard.writeText?navigator.clipboard.writeText(text).then(()=>status('Move list copied.')).catch(()=>{$('dataBox').value=text}):$('dataBox').value=text}
-function bind(){document.addEventListener('pointerdown',unlockAudio,{once:true});document.addEventListener('keydown',unlockAudio,{once:true});document.querySelectorAll('.tab').forEach(b=>b.addEventListener('click',()=>{document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));document.querySelectorAll('.panel').forEach(x=>x.classList.remove('active'));b.classList.add('active');$(b.dataset.tab).classList.add('active')}));$('newBtn').onclick=newGame;$('undoBtn').onclick=undo;$('hintBtn').onclick=hintMove;$('swapBtn').onclick=()=>{$('human').value=String(other(Number($('human').value)));newGame()};$('mode').onchange=newGame;$('human').onchange=newGame;$('rules').onchange=newGame;$('level').onchange=()=>status('AI level set to '+$('level').value+'.');$('sound').onchange=()=>{if($('sound').value==='on')unlockAudio();status('Jingle '+($('sound').value==='on'?'enabled':'muted')+'.')};$('loadScenario').onclick=loadScenario;$('showSolution').onclick=showSolution;$('exportBtn').onclick=exportJson;$('importBtn').onclick=importJson;$('copyMovesBtn').onclick=copyMoves;$('resetProfileBtn').onclick=()=>{profile=defaultProfile();saveProfile();status('Profile reset.');render()}}
-bind();initLearn();initAcademy();render();
+function bind(){document.querySelectorAll('.tab').forEach(b=>b.addEventListener('click',()=>{document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));document.querySelectorAll('.panel').forEach(x=>x.classList.remove('active'));b.classList.add('active');$(b.dataset.tab).classList.add('active')}));$('newBtn').onclick=newGame;$('undoBtn').onclick=undo;$('hintBtn').onclick=hintMove;$('swapBtn').onclick=()=>{$('human').value=String(other(Number($('human').value)));newGame()};$('mode').onchange=newGame;$('human').onchange=newGame;$('rules').onchange=newGame;$('level').onchange=()=>status('AI level set to '+$('level').value+'.');$('loadScenario').onclick=loadScenario;$('showSolution').onclick=showSolution;$('exportBtn').onclick=exportJson;$('importBtn').onclick=importJson;$('copyMovesBtn').onclick=copyMoves;$('resetProfileBtn').onclick=()=>{profile=defaultProfile();saveProfile();status('Profile reset.');render()};document.addEventListener('pointerdown',unlockAudio,{once:true});document.addEventListener('keydown',unlockAudio,{once:true})}
+bind();initCoordinates();initLearn();initAcademy();render();
 })();
 </script>
 </body>
