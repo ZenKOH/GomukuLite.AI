@@ -27,7 +27,7 @@ That is all. It works from:
 - Standard rule: exactly five contiguous stones wins
 - AI levels: Novice, Beginner, Intermediate, Advanced, Expert and Master
 - Heuristic alpha-beta AI with candidate ordering and a small transposition cache
-- Local two-player mode
+- Local two-player duel mode with explicit **Black wins!** / **White wins!** declarations
 - Master hint
 - Undo
 - Move log
@@ -36,8 +36,8 @@ That is all. It works from:
 - JSON export/import for game and profile state
 - Keyboard-accessible board controls
 - Visible coordinate markings outside the board: columns A–O and rows 15–1
-- AI move commentary that explains wins, blocks, threats and follow-up candidates after each move
-- Board-centred exclamation declaration overlay:
+- AI move commentary that explains wins, blocks, threats, duel results and follow-up candidates after each move
+- Board-centred exclamation declaration overlay for AI, duel and draw outcomes:
   - AI mode, human wins: **Victory! You win.**
   - AI mode, AI wins: **Defeat. The AI wins.**
   - Local two-player mode: **Black wins!** or **White wins!**
@@ -72,11 +72,10 @@ A PWA depends on a browser-managed first-load cache and served assets. GomukuLit
 1. **Offline means direct-open capable.** No server or cache lifecycle is required.
 2. **Lite means no dependency stack.** Everything needed to run is in one file.
 3. **Useful AI beats cosmetic difficulty labels.** Each level changes search depth, candidate width, blunder probability and noise.
-4. **Analysis should replace passive notes.** The sidebar now provides tactical commentary instead of static outcome reminders.
-5. **Training matters.** The Academy teaches patterns and now gives tutorial-style result feedback.
-6. **Coordinates should aid play without cluttering intersections.** A–O and 15–1 markings sit outside the playable grid.
-7. **Feedback matters.** Completed games give clear visual, textual and audio closure with exact outcome wording.
-8. **Private by default.** Profile data remains in the browser unless exported by the user.
+4. **Training matters.** The Academy teaches patterns rather than only casual play.
+5. **Feedback matters.** Completed games give clear visual, textual and audio closure with exact outcome wording.
+6. **Duel clarity matters.** Local two-player games are declared as **Black wins!** or **White wins!**, not generic win/lose messages.
+7. **Private by default.** Profile data remains in the browser unless exported by the user.
 
 ## Limitations
 
