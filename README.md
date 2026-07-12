@@ -35,6 +35,7 @@ That is all. It works from:
 - Lightweight AI Coach profile
 - JSON export/import for game and profile state
 - Keyboard-accessible board controls
+- Visible coordinate markings outside the board: columns A–O and rows 15–1
 - AI move commentary that explains wins, blocks, threats and follow-up candidates after each move
 - Board-centred exclamation declaration overlay:
   - AI mode, human wins: **Victory! You win.**
@@ -73,8 +74,9 @@ A PWA depends on a browser-managed first-load cache and served assets. GomukuLit
 3. **Useful AI beats cosmetic difficulty labels.** Each level changes search depth, candidate width, blunder probability and noise.
 4. **Analysis should replace passive notes.** The sidebar now provides tactical commentary instead of static outcome reminders.
 5. **Training matters.** The Academy teaches patterns and now gives tutorial-style result feedback.
-6. **Feedback matters.** Completed games give clear visual, textual and audio closure with exact outcome wording.
-7. **Private by default.** Profile data remains in the browser unless exported by the user.
+6. **Coordinates should aid play without cluttering intersections.** A–O and 15–1 markings sit outside the playable grid.
+7. **Feedback matters.** Completed games give clear visual, textual and audio closure with exact outcome wording.
+8. **Private by default.** Profile data remains in the browser unless exported by the user.
 
 ## Limitations
 
