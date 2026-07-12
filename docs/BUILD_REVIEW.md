@@ -24,6 +24,7 @@ GomukuLite.AI avoids those assumptions by putting CSS, UI, game logic, AI, Acade
 
 - Single-file `index.html`
 - 15×15 responsive board
+- Visible coordinate markings outside the board: columns A–O and rows 15–1
 - Freestyle and Standard rules
 - AI ladder from Novice to Master
 - Candidate generation near occupied stones
@@ -40,9 +41,19 @@ GomukuLite.AI avoids those assumptions by putting CSS, UI, game logic, AI, Acade
 - Keyboard-accessible board
 - Zero external assets
 
+## Coordinate marking upgrade
+
+The latest build adds visible board coordinates outside the playable grid.
+
+- Columns are labelled A–O above and below the board.
+- Rows are labelled 15–1 on both the left and right sides.
+- The labels sit outside the intersections so they do not interfere with stone placement, hover states, touch controls or keyboard focus.
+- The board's accessible cell labels already include notation; the visible coordinate frame now makes the same notation immediately usable for sighted play and coaching.
+- The coordinate frame scales with the board on mobile layouts.
+
 ## Move analysis and commentary upgrade
 
-The latest build removes the static outcome reminder note from the sidebar and replaces it with an AI-style commentary panel.
+The build removes the static outcome reminder note from the sidebar and replaces it with an AI-style commentary panel.
 
 The commentary is generated locally from the current board state and explains each move in practical tactical language:
 
@@ -56,7 +67,7 @@ The commentary remains offline and deterministic. It does not call any external 
 
 ## Board-centred declaration overlay
 
-Outcome declarations now appear over the board itself rather than in the side panel. The declaration is centred near the top of the board and uses an exclamation-style badge for stronger end-game feedback.
+Outcome declarations appear over the board itself rather than in the side panel. The declaration is centred near the top of the board and uses an exclamation-style badge for stronger end-game feedback.
 
 Exact wording remains:
 
@@ -122,3 +133,4 @@ The end-game jingle uses Web Audio rather than bundled audio files to preserve t
 7. Add offline print mode for classroom worksheets.
 8. Add a settings panel for alternate sound themes and colour-blind-safe highlight palettes.
 9. Add richer post-game move review with move-by-move mistake classification.
+10. Add optional coordinate preferences for alternative board notation conventions.
