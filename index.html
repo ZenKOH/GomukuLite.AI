@@ -7,12 +7,12 @@
   <title>GomukuLite.AI — Standalone Offline Gomoku</title>
   <style>
     :root{
-      --bg:#07100e;--bg2:#0b1714;--panel:#101d19;--panel2:#0c1513;--line:#29433b;
+      --bg:#07100e;--panel:#101d19;--panel2:#0c1513;--line:#29433b;
       --text:#f6f0dc;--muted:#a8b8ad;--gold:#f3c35b;--green:#69e6b2;--red:#ff8c8c;
-      --blue:#7dd3fc;--board:#d7ad67;--board2:#b9843f;--shadow:0 18px 55px rgba(0,0,0,.34)
+      --blue:#7dd3fc;--board:#d7ad67;--board2:#b9843f;--shadow:0 18px 55px rgba(0,0,0,.34);
     }
     *{box-sizing:border-box}
-    html,body{margin:0;min-height:100%;background:radial-gradient(circle at 10% 0,#17362b 0,#07100e 42%,#020504 100%);color:var(--text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+    html,body{margin:0;min-height:100%;background:radial-gradient(circle at 12% 0,#17362b 0,#07100e 42%,#020504 100%);color:var(--text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
     button,input,select,textarea{font:inherit}button{cursor:pointer}button:disabled{opacity:.5;cursor:not-allowed}
     .app{max-width:1360px;margin:0 auto;padding:20px}
     .top{display:flex;justify-content:space-between;gap:16px;align-items:center;margin-bottom:16px}
@@ -22,7 +22,7 @@
     .logo:before{left:10px;background:#050505}.logo:after{right:10px;background:#fff6d8}
     h1,h2,h3,p{margin-top:0}.brand h1{font-size:clamp(1.55rem,3vw,2.25rem);margin:0;line-height:1}.brand p{margin:4px 0 0;color:var(--muted)}
     .status{border:1px solid var(--line);background:rgba(13,26,23,.9);border-radius:999px;padding:9px 13px;color:var(--green);box-shadow:var(--shadow);max-width:620px}
-    .layout{display:grid;grid-template-columns:minmax(330px,1fr) 390px;gap:18px}
+    .layout{display:grid;grid-template-columns:minmax(330px,1fr) 400px;gap:18px}
     .card{background:linear-gradient(180deg,rgba(18,36,31,.97),rgba(9,16,14,.97));border:1px solid var(--line);border-radius:24px;padding:18px;box-shadow:var(--shadow)}
     .boardWrap{display:flex;justify-content:center;align-items:center;min-height:320px}
     .board{--cell:min(4.45vw,42px);display:grid;grid-template-columns:repeat(15,var(--cell));grid-template-rows:repeat(15,var(--cell));padding:18px;border-radius:22px;background:linear-gradient(135deg,var(--board),var(--board2));position:relative;box-shadow:inset 0 0 0 2px rgba(58,34,5,.28),var(--shadow);touch-action:manipulation}
@@ -40,11 +40,15 @@
     .cell:focus-visible{outline:3px solid #0ea5e9;outline-offset:-4px;border-radius:50%}
     @keyframes winPulse{0%,100%{transform:scale(1);filter:brightness(1)}50%{transform:scale(1.18);filter:brightness(1.24)}}
     .micro{color:var(--muted);font-size:.9rem;line-height:1.45;margin:12px 0 0}
-    .tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:13px}.tab{border:1px solid var(--line);border-radius:999px;background:#0b1714;color:var(--muted);padding:9px 12px}.tab.active{background:var(--gold);color:#191200;border-color:transparent;font-weight:800}
+    .tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:13px}
+    .tab{border:1px solid var(--line);border-radius:999px;background:#0b1714;color:var(--muted);padding:9px 12px}
+    .tab.active{background:var(--gold);color:#191200;border-color:transparent;font-weight:800}
     .panel{display:none}.panel.active{display:grid;gap:13px}
-    .notice{border:1px solid rgba(243,195,91,.38);background:rgba(243,195,91,.1);border-radius:16px;padding:12px;color:#ffe7aa;line-height:1.45}
-    .declaration{display:none;border-radius:20px;padding:16px;border:1px solid rgba(105,230,178,.42);background:linear-gradient(135deg,rgba(105,230,178,.18),rgba(243,195,91,.11));box-shadow:0 0 35px rgba(105,230,178,.18)}
-    .declaration.show{display:block;animation:declarationPop .38s ease-out both}.declaration.defeat{border-color:rgba(255,140,140,.48);background:linear-gradient(135deg,rgba(255,140,140,.18),rgba(243,195,91,.08));box-shadow:0 0 35px rgba(255,140,140,.16)}.declaration.draw{border-color:rgba(125,211,252,.48);background:linear-gradient(135deg,rgba(125,211,252,.18),rgba(243,195,91,.08))}
+    .notice{border:1px solid rgba(243,195,91,.38);background:rgba(243,195,91,.1);border-radius:16px;padding:12px;color:#ffe7aa;line-height:1.45;margin-bottom:13px}
+    .declaration{display:none;border-radius:20px;padding:16px;margin-bottom:13px;border:1px solid rgba(105,230,178,.42);background:linear-gradient(135deg,rgba(105,230,178,.18),rgba(243,195,91,.11));box-shadow:0 0 35px rgba(105,230,178,.18)}
+    .declaration.show{display:block;animation:declarationPop .38s ease-out both}
+    .declaration.defeat{border-color:rgba(255,140,140,.48);background:linear-gradient(135deg,rgba(255,140,140,.18),rgba(243,195,91,.08));box-shadow:0 0 35px rgba(255,140,140,.16)}
+    .declaration.draw{border-color:rgba(125,211,252,.48);background:linear-gradient(135deg,rgba(125,211,252,.18),rgba(243,195,91,.08))}
     .declaration h2{font-size:1.55rem;margin:0 0 4px}.declaration p{margin:0;color:var(--muted);line-height:1.4}
     @keyframes declarationPop{from{transform:translateY(-6px) scale(.98);opacity:0}to{transform:none;opacity:1}}
     .row{display:grid;grid-template-columns:1fr 1fr;gap:10px}.field{display:grid;gap:6px}.field label,.eyebrow{font-size:.76rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
@@ -78,7 +82,7 @@
       <div id="declaration" class="declaration" role="status" aria-live="assertive">
         <h2 id="declareTitle"></h2><p id="declareText"></p>
       </div>
-      <div class="notice"><b>Lite build:</b> fully self-contained. Open <code>index.html</code> from disk, USB drive, GitHub Pages, or any static host.</div>
+      <div class="notice"><b>Outcome declarations:</b> AI games declare <b>Victory! You win.</b> or <b>Defeat. The AI wins.</b>; local games declare <b>Black wins!</b> or <b>White wins!</b>; full boards declare <b>Draw game.</b></div>
       <div class="tabs" role="tablist" aria-label="GomukuLite sections">
         <button class="tab active" data-tab="play">Play</button>
         <button class="tab" data-tab="academy">Academy</button>
@@ -123,18 +127,27 @@
 <script>
 (function(){
 'use strict';
-const SIZE=15,EMPTY=0,BLACK=1,WHITE=2,DIRS=[[0,1],[1,0],[1,1],[1,-1]];
-const STORE='gomukulitedotai-profile-v2';
-const LEVELS={Novice:{depth:0,limit:7,noise:900,blunder:.30},Beginner:{depth:1,limit:9,noise:450,blunder:.14},Intermediate:{depth:2,limit:11,noise:160,blunder:.05},Advanced:{depth:2,limit:16,noise:60,blunder:.015},Expert:{depth:3,limit:13,noise:0,blunder:0},Master:{depth:4,limit:11,noise:0,blunder:0}};
+
+const SIZE=15, EMPTY=0, BLACK=1, WHITE=2, DIRS=[[0,1],[1,0],[1,1],[1,-1]];
+const STORE='gomukulitedotai-profile-v3';
+const LEVELS={
+  Novice:{depth:0,limit:7,noise:900,blunder:.30},
+  Beginner:{depth:1,limit:9,noise:450,blunder:.14},
+  Intermediate:{depth:2,limit:11,noise:160,blunder:.05},
+  Advanced:{depth:2,limit:16,noise:60,blunder:.015},
+  Expert:{depth:3,limit:13,noise:0,blunder:0},
+  Master:{depth:4,limit:11,noise:0,blunder:0}
+};
 const CHAPTERS=['Opening balance','Immediate wins','Essential blocks','Open threes','Open fours','Forks','Counterplay','Shape building','Diagonal shifts','Prophylaxis','Calculation','Master patterns'];
 const LESSONS=[
- ['Goal','Place stones on intersections. Five contiguous stones wins in Freestyle; exactly five wins in Standard.'],
- ['Win declaration','Completed games now declare Victory, Defeat, Black wins, White wins, or Draw, with a jingle and glowing winning stones.'],
- ['Move order','Check immediate win, urgent block, forcing threat, then positional improvement.'],
- ['Threats','An open four has two winning points. A closed four has one. Open threes become threats if ignored.'],
- ['Defence','Good defence blocks the opponent while improving one of your own lines.'],
- ['Calculation','Force first. Every forcing move reduces the opponent’s useful choices.']
+  ['Goal','Place stones on intersections. Five contiguous stones wins in Freestyle; exactly five wins in Standard.'],
+  ['Outcome declarations','AI mode declares “Victory! You win.” or “Defeat. The AI wins.” Local mode declares “Black wins!” or “White wins!” Full boards declare “Draw game.”'],
+  ['Move order','Check immediate win, urgent block, forcing threat, then positional improvement.'],
+  ['Threats','An open four has two winning points. A closed four has one. Open threes become threats if ignored.'],
+  ['Defence','Good defence blocks the opponent while improving one of your own lines.'],
+  ['Calculation','Force first. Every forcing move reduces the opponent’s useful choices.']
 ];
+
 function $(id){return document.getElementById(id)}
 function emptyBoard(){return Array.from({length:SIZE},()=>Array(SIZE).fill(EMPTY))}
 function clone(b){return b.map(r=>r.slice())}
@@ -146,8 +159,9 @@ function star(r,c){return (r===3||r===7||r===11)&&(c===3||c===7||c===11)}
 function defaultProfile(){return{games:0,wins:0,losses:0,hints:0,puzzlesSolved:0,puzzleAttempts:0,attackMoves:0,defenceMoves:0,bestStreak:0,currentStreak:0}}
 function loadProfile(){try{return Object.assign(defaultProfile(),JSON.parse(localStorage.getItem(STORE)||'{}'))}catch(e){return defaultProfile()}}
 function saveProfile(){localStorage.setItem(STORE,JSON.stringify(profile))}
-let board=emptyBoard(),turn=BLACK,winner=EMPTY,moves=[],hint=null,solution=null,last=null,nodes=0,academy=null,profile=loadProfile(),thinking=false,winningCells=[];
-let audioCtx=null;
+
+let board=emptyBoard(), turn=BLACK, winner=EMPTY, moves=[], hint=null, solution=null, last=null, nodes=0, academy=null, profile=loadProfile(), thinking=false, winningCells=[], audioCtx=null;
+
 function status(text){$('status').textContent=text}
 function log(text){const d=document.createElement('div');d.textContent=text;$('log').prepend(d)}
 function lineLength(b,p,player,dr,dc){let n=1;for(const s of[-1,1]){let r=p.r+dr*s,c=p.c+dc*s;while(inBounds(r,c)&&b[r][c]===player){n++;r+=dr*s;c+=dc*s}}return n}
@@ -165,7 +179,29 @@ function minimax(b,depth,alpha,beta,maxing,ai,lastMove,cache){nodes++;if(lastMov
 function chooseAI(b,player,level){const s=LEVELS[level]||LEVELS.Intermediate;let ranked=scoreMoves(b,player,s.limit);if(!ranked.length)return null;if(Math.random()<s.blunder)return ranked[Math.min(ranked.length-1,2+Math.floor(Math.random()*4))];if(!s.depth){const n=Math.min(5,ranked.length);return ranked[Math.floor(Math.random()*n)]}nodes=0;const cache=new Map();ranked=ranked.map(m=>{const next=clone(b);next[m.r][m.c]=player;const forced=isWin(next,m,player)?20000000:minimax(next,s.depth-1,-Infinity,Infinity,false,player,{r:m.r,c:m.c,player},cache);return{r:m.r,c:m.c,score:forced+(m.score||0)*.01+Math.random()*s.noise}}).sort((a,b)=>b.score-a.score);return ranked[0]}
 function sameCell(a,b){return a&&b&&a.r===b.r&&a.c===b.c}
 function isWinningCell(r,c){return winningCells.some(p=>p.r===r&&p.c===c)}
-function render(){const el=$('board');el.innerHTML='';for(let r=0;r<SIZE;r++){for(let c=0;c<SIZE;c++){const v=board[r][c];const btn=document.createElement('button');btn.className='cell'+(v?' occupied':'')+(sameCell(last,{r,c})?' last':'')+(hint&&hint.r===r&&hint.c===c?' hint':'')+(solution&&solution.r===r&&solution.c===c?' solution':'')+(star(r,c)?' star':'')+(isWinningCell(r,c)?' winning':'');btn.type='button';btn.role='gridcell';btn.tabIndex=(r===7&&c===7)?0:-1;btn.setAttribute('aria-label',notation({r,c})+(v?', '+nameOf(v)+' stone':', empty')+(isWinningCell(r,c)?', winning stone':''));if(star(r,c)){const dot=document.createElement('span');dot.className='starDot';btn.appendChild(dot)}if(v){const stone=document.createElement('span');stone.className='stone '+(v===BLACK?'black':'white');btn.appendChild(stone)}btn.addEventListener('click',()=>humanMove({r,c}));btn.addEventListener('keydown',e=>moveFocus(e,r,c));el.appendChild(btn)}}$('moveCount').textContent=moves.length;$('nodes').textContent=String(nodes);$('rank').textContent=rank();renderCoach();saveProfile()}
+
+function render(){
+  const el=$('board');el.innerHTML='';
+  for(let r=0;r<SIZE;r++){
+    for(let c=0;c<SIZE;c++){
+      const v=board[r][c];
+      const btn=document.createElement('button');
+      btn.className='cell'+(v?' occupied':'')+(sameCell(last,{r,c})?' last':'')+(hint&&hint.r===r&&hint.c===c?' hint':'')+(solution&&solution.r===r&&solution.c===c?' solution':'')+(star(r,c)?' star':'')+(isWinningCell(r,c)?' winning':'');
+      btn.type='button';btn.role='gridcell';btn.tabIndex=(r===7&&c===7)?0:-1;
+      btn.setAttribute('aria-label',notation({r,c})+(v?', '+nameOf(v)+' stone':', empty')+(isWinningCell(r,c)?', winning stone':''));
+      if(star(r,c)){const dot=document.createElement('span');dot.className='starDot';btn.appendChild(dot)}
+      if(v){const stone=document.createElement('span');stone.className='stone '+(v===BLACK?'black':'white');btn.appendChild(stone)}
+      btn.addEventListener('click',()=>humanMove({r,c}));
+      btn.addEventListener('keydown',e=>moveFocus(e,r,c));
+      el.appendChild(btn);
+    }
+  }
+  $('moveCount').textContent=moves.length;
+  $('nodes').textContent=String(nodes);
+  $('rank').textContent=rank();
+  renderCoach();
+  saveProfile();
+}
 function focusAt(r,c){r=Math.max(0,Math.min(SIZE-1,r));c=Math.max(0,Math.min(SIZE-1,c));const i=r*SIZE+c;const cells=$('board').querySelectorAll('.cell');cells.forEach(x=>x.tabIndex=-1);cells[i].tabIndex=0;cells[i].focus()}
 function moveFocus(e,r,c){const map={ArrowUp:[-1,0],ArrowDown:[1,0],ArrowLeft:[0,-1],ArrowRight:[0,1]};if(map[e.key]){e.preventDefault();focusAt(r+map[e.key][0],c+map[e.key][1])}if(e.key==='Enter'||e.key===' '){e.preventDefault();humanMove({r,c})}}
 function ensureAudio(){if($('sound').value==='off')return null;const Ctx=window.AudioContext||window.webkitAudioContext;if(!Ctx)return null;if(!audioCtx)audioCtx=new Ctx();if(audioCtx.state==='suspended')audioCtx.resume();return audioCtx}
@@ -173,8 +209,25 @@ function tone(ctx,freq,start,duration,type='sine',gain=.055){const osc=ctx.creat
 function jingle(kind){const ctx=ensureAudio();if(!ctx)return;const t=ctx.currentTime+.02;if(kind==='win'){[523.25,659.25,783.99,1046.5].forEach((f,i)=>tone(ctx,f,t+i*.11,.16,'triangle',.06));tone(ctx,1318.51,t+.48,.32,'sine',.04)}else if(kind==='lose'){[392,349.23,293.66,220].forEach((f,i)=>tone(ctx,f,t+i*.16,.22,'sawtooth',.035));}else{[440,554.37,440].forEach((f,i)=>tone(ctx,f,t+i*.14,.16,'sine',.035));}}
 function declaration(kind,title,text){const box=$('declaration');$('declareTitle').textContent=title;$('declareText').textContent=text;box.className='declaration show '+(kind==='lose'?'defeat':kind==='draw'?'draw':'');}
 function clearDeclaration(){const box=$('declaration');box.className='declaration';$('declareTitle').textContent='';$('declareText').textContent=''}
-function finishGame(player,line){winner=player;winningCells=line||[];let kind='win',title=nameOf(player)+' wins!',text='Winning line: '+winningCells.map(notation).join(' · ')+'.';if($('mode').value==='ai'){const human=Number($('human').value);const won=player===human;kind=won?'win':'lose';title=won?'Victory! You win.':'Defeat. The AI wins.';text=(won?'You completed':'The AI completed')+' the winning line: '+winningCells.map(notation).join(' · ')+'.'}status(title);declaration(kind,title,text);jingle(kind);log('★ '+title+' '+text);if($('mode').value==='ai'){profile.games++;if(kind==='win')profile.wins++;else profile.losses++}}
-function finishDraw(){winner=-1;status('Draw — the board is full.');declaration('draw','Draw game.','No legal moves remain. Start a new board to continue training.');jingle('draw');log('★ Draw game.')}
+function outcomeFor(player){
+  if($('mode').value==='ai'){
+    const won=player===Number($('human').value);
+    return {kind:won?'win':'lose',title:won?'Victory! You win.':'Defeat. The AI wins.'};
+  }
+  return {kind:'win',title:player===BLACK?'Black wins!':'White wins!'};
+}
+function finishGame(player,line){
+  winner=player;winningCells=line||[];
+  const out=outcomeFor(player);
+  const text='Winning line: '+winningCells.map(notation).join(' · ')+'.';
+  status(out.title);declaration(out.kind,out.title,text);jingle(out.kind);log('★ '+out.title+' '+text);
+  if($('mode').value==='ai'){profile.games++;if(out.kind==='win')profile.wins++;else profile.losses++}
+}
+function finishDraw(){
+  winner=-1;winningCells=[];
+  const title='Draw game.', text='No legal moves remain. Start a new board to continue training.';
+  status(title);declaration('draw',title,text);jingle('draw');log('★ '+title);
+}
 function humanMove(p){if(thinking||winner||board[p.r][p.c])return;ensureAudio();if($('mode').value==='ai'&&Number($('human').value)!==turn){status('Wait for the AI move.');return}place(p,turn,'human');if(!winner&&$('mode').value==='ai'&&Number($('human').value)!==turn)setTimeout(aiTurn,Number($('speed').value)||160)}
 function aiTurn(){if(winner||thinking)return;thinking=true;status($('level').value+' AI is calculating…');setTimeout(()=>{const m=chooseAI(board,turn,$('level').value);thinking=false;if(m)place(m,turn,'ai')},Math.max(40,Math.floor((Number($('speed').value)||160)/2)))}
 function place(p,player,source){if(board[p.r][p.c]||winner)return;board[p.r][p.c]=player;last=p;hint=null;solution=null;moves.push({r:p.r,c:p.c,player,source});log((moves.length)+'. '+nameOf(player)+' '+notation(p)+(source==='ai'?' · AI':''));if(source==='human')profile.attackMoves++;if(academy){const ok=academy.solutions.some(s=>s.r===p.r&&s.c===p.c);profile.puzzleAttempts++;if(ok){profile.puzzlesSolved++;profile.currentStreak++;profile.bestStreak=Math.max(profile.bestStreak,profile.currentStreak);status('Correct. '+academy.lesson)}else{profile.currentStreak=0;status('Not quite. Look for forcing wins or urgent blocks first.')}academy=null}else{const line=winningLine(board,p,player);if(line.length){finishGame(player,line)}else if(boardFull(board)){finishDraw()}else{turn=other(turn);status(nameOf(turn)+' to move.')}}render()}
@@ -182,7 +235,7 @@ function newGame(){board=emptyBoard();turn=BLACK;winner=EMPTY;moves=[];hint=null
 function undo(){if(thinking||!moves.length)return;const n=$('mode').value==='ai'&&moves.length>1?2:1;for(let i=0;i<n;i++)moves.pop();board=emptyBoard();moves.forEach(m=>board[m.r][m.c]=m.player);winner=EMPTY;winningCells=[];last=moves[moves.length-1]||null;turn=moves.length%2?WHITE:BLACK;hint=null;solution=null;academy=null;clearDeclaration();status(nameOf(turn)+' to move.');$('log').innerHTML='';moves.slice().reverse().forEach((m,i)=>log((moves.length-i)+'. '+nameOf(m.player)+' '+notation(m)));render()}
 function hintMove(){if(winner||thinking)return;const best=scoreMoves(board,turn,30)[0];if(!best)return;hint={r:best.r,c:best.c};profile.hints++;status('Master hint: consider '+notation(hint)+'.');render()}
 function rank(){const score=profile.wins*5+profile.puzzlesSolved*2-profile.hints+profile.bestStreak*3;if(score>420)return'Master';if(score>240)return'Expert';if(score>120)return'Tactician';if(score>50)return'Apprentice';return'Rookie'}
-function renderCoach(){const total=Math.max(1,profile.puzzleAttempts);const acc=Math.round(profile.puzzlesSolved/total*100);const wr=Math.round(profile.wins/Math.max(1,profile.games)*100);const style=profile.defenceMoves>profile.attackMoves*1.15?'Guardian':profile.attackMoves>profile.defenceMoves*1.35?'Initiator':acc>72?'Calculator':'Builder';$('coachPanel').innerHTML='<article><h3>'+rank()+' · '+style+'</h3><p>Win rate '+wr+'% across '+profile.games+' AI games. Tactical accuracy '+acc+'% across '+profile.puzzleAttempts+' Academy attempts.</p></article><article><h3>Recommended focus</h3><p>'+(style==='Initiator'?'Block urgent threats before extending attacks.':style==='Guardian'?'Convert defence into counter-threats.':style==='Calculator'?'Study multi-threat forks and long diagonals.':'Build open threes before rushing closed fours.')+'</p></article><article><h3>End-game feedback</h3><p>When a match ends, GomukuLite now highlights the winning line, plays a local Web Audio jingle, and declares Victory, Defeat or Draw.</p></article>'}
+function renderCoach(){const total=Math.max(1,profile.puzzleAttempts);const acc=Math.round(profile.puzzlesSolved/total*100);const wr=Math.round(profile.wins/Math.max(1,profile.games)*100);const style=profile.defenceMoves>profile.attackMoves*1.15?'Guardian':profile.attackMoves>profile.defenceMoves*1.35?'Initiator':acc>72?'Calculator':'Builder';$('coachPanel').innerHTML='<article><h3>'+rank()+' · '+style+'</h3><p>Win rate '+wr+'% across '+profile.games+' AI games. Tactical accuracy '+acc+'% across '+profile.puzzleAttempts+' Academy attempts.</p></article><article><h3>Recommended focus</h3><p>'+(style==='Initiator'?'Block urgent threats before extending attacks.':style==='Guardian'?'Convert defence into counter-threats.':style==='Calculator'?'Study multi-threat forks and long diagonals.':'Build open threes before rushing closed fours.')+'</p></article><article><h3>End-game feedback</h3><p>Outcome text is explicit: “Victory! You win.”, “Defeat. The AI wins.”, “Black wins!”, “White wins!” or “Draw game.” The winning line glows and a local jingle plays unless muted.</p></article>'}
 function initLearn(){$('learnPanel').innerHTML=LESSONS.map((x,i)=>'<article><h3>'+String(i+1).padStart(2,'0')+' · '+x[0]+'</h3><p>'+x[1]+'</p></article>').join('')+'<article><h3>Standalone design</h3><p>This Lite build intentionally removes online rooms, service-worker assumptions and external assets. It is a direct-open HTML app for clinics, workshops, schools, travel and locked-down computers.</p></article>'}
 function motif(i){const base=[{r:7,c:7,p:BLACK},{r:7,c:8,p:BLACK},{r:7,c:9,p:BLACK},{r:7,c:11,p:BLACK},{r:6,c:7,p:WHITE},{r:8,c:8,p:WHITE},{r:6,c:10,p:WHITE}];const sol={r:7,c:10};if(i%3===1){base.forEach(x=>{const t=x.r;x.r=x.c;x.c=t});const t=sol.r;sol.r=sol.c;sol.c=t}if(i%3===2){base.forEach(x=>{x.r=14-x.r});sol.r=14-sol.r}const offR=(Math.floor(i/3)-1)*2,offC=((i%3)-1)*2;base.forEach(x=>{x.r=Math.max(0,Math.min(14,x.r+offR));x.c=Math.max(0,Math.min(14,x.c+offC))});sol.r=Math.max(0,Math.min(14,sol.r+offR));sol.c=Math.max(0,Math.min(14,sol.c+offC));return{stones:base,solution:sol}}
 function makeScenarios(){const list=[];let id=1;CHAPTERS.forEach((ch,ci)=>{for(let i=0;i<9;i++){const m=motif((ci+i)%9);const b=emptyBoard();m.stones.forEach(s=>b[s.r][s.c]=s.p);list.push({id:id++,chapter:ch,title:ch+' pattern '+(i+1),board:b,player:BLACK,solutions:[m.solution],lesson:'This move completes or creates the forcing line before the opponent can stabilise.'})}});return list}
@@ -190,7 +243,7 @@ const scenarios=makeScenarios();
 function initAcademy(){const chapter=$('chapter');chapter.innerHTML=CHAPTERS.map(c=>'<option>'+c+'</option>').join('');function fill(){const items=scenarios.filter(s=>s.chapter===chapter.value);$('scenarioNo').innerHTML=items.map((s,i)=>'<option value="'+s.id+'">'+String(i+1).padStart(2,'0')+'</option>').join('');$('scenarioList').innerHTML=items.map(s=>'<button class="scenario" data-id="'+s.id+'"><b>#'+s.id+' '+s.title+'</b><small>Black to move · solution hidden</small></button>').join('');document.querySelectorAll('.scenario').forEach(btn=>btn.addEventListener('click',()=>{document.querySelectorAll('.scenario').forEach(b=>b.classList.remove('active'));btn.classList.add('active');$('scenarioNo').value=btn.dataset.id;loadScenario()}))}chapter.addEventListener('change',fill);fill()}
 function loadScenario(){const s=scenarios.find(x=>x.id===Number($('scenarioNo').value))||scenarios[0];board=clone(s.board);turn=s.player;winner=EMPTY;moves=[];last=null;hint=null;solution=null;winningCells=[];academy=s;$('log').innerHTML='';clearDeclaration();status('Academy #'+s.id+': find the strongest move for '+nameOf(turn)+'.');render()}
 function showSolution(){if(!academy)loadScenario();solution=academy.solutions[0];status('Solution marker: '+notation(solution)+'.');render()}
-function exportJson(){const out={app:'GomukuLite.AI',version:2,exportedAt:new Date().toISOString(),profile,game:{board,moves,turn,winner,winningCells,rules:$('rules').value,mode:$('mode').value,level:$('level').value}};$('dataBox').value=JSON.stringify(out,null,2)}
+function exportJson(){const out={app:'GomukuLite.AI',version:3,exportedAt:new Date().toISOString(),profile,game:{board,moves,turn,winner,winningCells,rules:$('rules').value,mode:$('mode').value,level:$('level').value}};$('dataBox').value=JSON.stringify(out,null,2)}
 function importJson(){try{const data=JSON.parse($('dataBox').value);if(data.profile)profile=Object.assign(defaultProfile(),data.profile);if(data.game){board=data.game.board||emptyBoard();moves=data.game.moves||[];turn=data.game.turn||BLACK;winner=data.game.winner||EMPTY;winningCells=data.game.winningCells||[];last=moves[moves.length-1]||null;if(data.game.rules)$('rules').value=data.game.rules;if(data.game.mode)$('mode').value=data.game.mode;if(data.game.level)$('level').value=data.game.level}saveProfile();status('Imported JSON.');clearDeclaration();render()}catch(e){status('Import failed: invalid JSON.')}}
 function copyMoves(){const text=moves.map((m,i)=>(i+1)+'. '+nameOf(m.player)+' '+notation(m)).join('\n');navigator.clipboard&&navigator.clipboard.writeText?navigator.clipboard.writeText(text).then(()=>status('Move list copied.')).catch(()=>{$('dataBox').value=text}):$('dataBox').value=text}
 function bind(){document.querySelectorAll('.tab').forEach(b=>b.addEventListener('click',()=>{document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));document.querySelectorAll('.panel').forEach(x=>x.classList.remove('active'));b.classList.add('active');$(b.dataset.tab).classList.add('active')}));$('newBtn').onclick=newGame;$('undoBtn').onclick=undo;$('hintBtn').onclick=hintMove;$('swapBtn').onclick=()=>{$('human').value=String(other(Number($('human').value)));newGame()};$('mode').onchange=newGame;$('human').onchange=newGame;$('rules').onchange=newGame;$('level').onchange=()=>status('AI level set to '+$('level').value+'.');$('loadScenario').onclick=loadScenario;$('showSolution').onclick=showSolution;$('exportBtn').onclick=exportJson;$('importBtn').onclick=importJson;$('copyMovesBtn').onclick=copyMoves;$('resetProfileBtn').onclick=()=>{profile=defaultProfile();saveProfile();status('Profile reset.');render()}}
