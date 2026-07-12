@@ -24,8 +24,11 @@ GomukuLite.AI avoids those assumptions by putting CSS, UI, game logic, AI, Acade
 
 - Single-file `index.html`
 - 15×15 responsive board
+- Visible coordinate markings outside the board: columns A–O and rows 15–1
 - Freestyle and Standard rules
 - AI ladder from Novice to Master
+- Forced tactical pre-checks for immediate wins and compulsory blocks
+- Explicit four-in-a-row defence before any difficulty noise or blunder setting
 - Candidate generation near occupied stones
 - Heuristic evaluation across rows, columns and diagonals
 - Alpha-beta minimax for stronger levels
@@ -49,6 +52,21 @@ The latest build adds visible board coordinates outside the playable grid.
 - The labels sit outside the intersections so they do not interfere with stone placement, hover states, touch controls or keyboard focus.
 - The board's accessible cell labels already include notation; the visible coordinate frame now makes the same notation immediately usable for sighted play and coaching.
 - The coordinate frame scales with the board on mobile layouts.
+
+## AI competency upgrade
+
+The latest build strengthens the AI's tactical floor. The previous engine could allow difficulty noise or a blunder path to override an obvious defensive obligation, which made the AI miss simple four-in-a-row threats.
+
+The upgraded engine now follows a non-negotiable tactical order before regular search:
+
+1. play an immediate winning move;
+2. block the opponent's immediate winning move;
+3. prefer forcing fork candidates that create multiple next-turn wins;
+4. then apply alpha-beta search, candidate ordering, difficulty noise and lower-level imperfection.
+
+This means even lower levels should no longer ignore a visible open four that can be blocked. Difficulty levels still differ, but they are not allowed to skip the most basic tactical obligations.
+
+A local smoke test was run against the failure case: four Black stones in a row with White/AI to move. The upgraded Novice AI selected one of the two legal blocking points instead of playing elsewhere. The same smoke pattern also confirmed that the AI takes an immediate winning point when it already has four in a row.
 
 ## Move analysis and commentary upgrade
 
@@ -113,7 +131,7 @@ That means the Lite edition avoids:
 
 ## Technical trade-offs
 
-The AI is intentionally heuristic rather than neural. This keeps the build transparent, small and deterministic enough to run in ordinary browsers.
+The AI is intentionally heuristic rather than neural. This keeps the build transparent, small and deterministic enough to run in ordinary browsers. The tactical pre-check layer is deliberately simple and strict so the AI handles obvious wins and blocks before relying on deeper search.
 
 The Academy positions are generated from transformed motifs rather than stored as a large static dataset. This preserves the “108-position” training promise while keeping the file compact.
 
@@ -132,3 +150,4 @@ The end-game jingle uses Web Audio rather than bundled audio files to preserve t
 7. Add offline print mode for classroom worksheets.
 8. Add a settings panel for alternate sound themes and colour-blind-safe highlight palettes.
 9. Add richer post-game move review with move-by-move mistake classification.
+10. Add optional coordinate preferences for alternative board notation conventions.
