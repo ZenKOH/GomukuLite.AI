@@ -35,13 +35,15 @@ That is all. It works from:
 - Lightweight AI Coach profile
 - JSON export/import for game and profile state
 - Keyboard-accessible board controls
-- Exact outcome declarations:
+- AI move commentary that explains wins, blocks, threats and follow-up candidates after each move
+- Board-centred exclamation declaration overlay:
   - AI mode, human wins: **Victory! You win.**
   - AI mode, AI wins: **Defeat. The AI wins.**
   - Local two-player mode: **Black wins!** or **White wins!**
   - Full board: **Draw game.**
-- Glowing highlight on the winning stone line
-- Offline Web Audio win/lose/draw jingles with a mute option
+- Tutorial/Academy correct and missed attempts now trigger highlight, declaration and jingle feedback
+- Glowing highlight on the winning stone line or tutorial solution
+- More reliable offline Web Audio win/lose/draw jingles with a mute option
 - No external scripts, fonts, images, telemetry, CDN calls or server calls
 
 ## Why this exists
@@ -69,9 +71,10 @@ A PWA depends on a browser-managed first-load cache and served assets. GomukuLit
 1. **Offline means direct-open capable.** No server or cache lifecycle is required.
 2. **Lite means no dependency stack.** Everything needed to run is in one file.
 3. **Useful AI beats cosmetic difficulty labels.** Each level changes search depth, candidate width, blunder probability and noise.
-4. **Training matters.** The Academy teaches patterns rather than only casual play.
-5. **Feedback matters.** Completed games give clear visual, textual and audio closure with exact outcome wording.
-6. **Private by default.** Profile data remains in the browser unless exported by the user.
+4. **Analysis should replace passive notes.** The sidebar now provides tactical commentary instead of static outcome reminders.
+5. **Training matters.** The Academy teaches patterns and now gives tutorial-style result feedback.
+6. **Feedback matters.** Completed games give clear visual, textual and audio closure with exact outcome wording.
+7. **Private by default.** Profile data remains in the browser unless exported by the user.
 
 ## Limitations
 
