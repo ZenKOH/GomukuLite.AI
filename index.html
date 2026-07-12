@@ -104,7 +104,7 @@
       <p class="micro">Coordinates: columns A–O and rows 15–1 are shown outside the board. Keyboard: Tab to a cell, arrow keys move focus, Enter or Space places a stone.</p>
     </section>
     <aside class="card">
-      <div id="analysis" class="analysis"><h3>AI move commentary</h3><p>Start a game, two-player duel, or Academy position to receive tactical commentary after each move.</p></div>
+      <div id="analysis" class="analysis"><h3>AI move commentary</h3><p>Start a game or Academy position to receive tactical commentary after each move.</p></div>
       <div class="tabs" role="tablist" aria-label="GomukuLite sections">
         <button class="tab active" data-tab="play">Play</button>
         <button class="tab" data-tab="academy">Academy</button>
@@ -149,20 +149,27 @@
 <script>
 (function(){
 'use strict';
-const SIZE=15,EMPTY=0,BLACK=1,WHITE=2,DIRS=[[0,1],[1,0],[1,1],[1,-1]];
+
+const SIZE=15, EMPTY=0, BLACK=1, WHITE=2, DIRS=[[0,1],[1,0],[1,1],[1,-1]];
 const STORE='gomukulitedotai-profile-v3';
-const LEVELS={Novice:{depth:0,limit:7,noise:900,blunder:.30},Beginner:{depth:1,limit:9,noise:450,blunder:.14},Intermediate:{depth:2,limit:11,noise:160,blunder:.05},Advanced:{depth:2,limit:16,noise:60,blunder:.015},Expert:{depth:3,limit:13,noise:0,blunder:0},Master:{depth:4,limit:11,noise:0,blunder:0}};
+const LEVELS={
+  Novice:{depth:1,limit:10,noise:520,blunder:.10},
+  Beginner:{depth:1,limit:12,noise:260,blunder:.04},
+  Intermediate:{depth:2,limit:16,noise:90,blunder:0},
+  Advanced:{depth:3,limit:16,noise:25,blunder:0},
+  Expert:{depth:4,limit:14,noise:0,blunder:0},
+  Master:{depth:4,limit:18,noise:0,blunder:0}
+};
 const CHAPTERS=['Opening balance','Immediate wins','Essential blocks','Open threes','Open fours','Forks','Counterplay','Shape building','Diagonal shifts','Prophylaxis','Calculation','Master patterns'];
 const LESSONS=[
- ['Goal','Place stones on intersections. Five contiguous stones wins in Freestyle; exactly five wins in Standard.'],
- ['Coordinates','Columns A–O and rows 15–1 are shown outside the board so moves can be discussed without covering intersections.'],
- ['Duel declaration','In two-player duel mode, the board overlay declares Black wins! or White wins! as soon as either side completes the winning line.'],
- ['Win declaration','Completed games declare Victory, Defeat, Black wins, White wins, or Draw, with a jingle and glowing winning stones.'],
- ['Move order','Check immediate win, urgent block, forcing threat, then positional improvement.'],
- ['Threats','An open four has two winning points. A closed four has one. Open threes become threats if ignored.'],
- ['Defence','Good defence blocks the opponent while improving one of your own lines.'],
- ['Calculation','Force first. Every forcing move reduces the opponent’s useful choices.']
+  ['Goal','Place stones on intersections. Five contiguous stones wins in Freestyle; exactly five wins in Standard.'],
+  ['AI move commentary','After each move, the local analysis engine explains whether the move wins, blocks, creates a threat, or leaves a tactical opportunity.'],
+  ['Move order','Check immediate win, urgent block, forcing threat, then positional improvement. The AI now follows this tactical order before any difficulty noise is applied.'],
+  ['Threats','An open four has two winning points. A closed four has one. Open threes become threats if ignored.'],
+  ['Defence','Good defence blocks the opponent while improving one of your own lines.'],
+  ['Calculation','Force first. Every forcing move reduces the opponent’s useful choices.']
 ];
+
 function $(id){return document.getElementById(id)}
 function emptyBoard(){return Array.from({length:SIZE},()=>Array(SIZE).fill(EMPTY))}
 function clone(b){return b.map(r=>r.slice())}
@@ -171,14 +178,23 @@ function other(p){return p===BLACK?WHITE:BLACK}
 function nameOf(p){return p===BLACK?'Black':'White'}
 function notation(p){return String.fromCharCode(65+p.c)+(SIZE-p.r)}
 function star(r,c){return (r===3||r===7||r===11)&&(c===3||c===7||c===11)}
+function initCoordinates(){
+  const letters=Array.from({length:SIZE},(_,i)=>String.fromCharCode(65+i));
+  const numbers=Array.from({length:SIZE},(_,i)=>String(SIZE-i));
+  const cell=s=>'<span>'+s+'</span>';
+  $('colsTop').innerHTML=letters.map(cell).join('');
+  $('colsBottom').innerHTML=letters.map(cell).join('');
+  $('rowsLeft').innerHTML=numbers.map(cell).join('');
+  $('rowsRight').innerHTML=numbers.map(cell).join('');
+}
 function defaultProfile(){return{games:0,wins:0,losses:0,hints:0,puzzlesSolved:0,puzzleAttempts:0,attackMoves:0,defenceMoves:0,bestStreak:0,currentStreak:0}}
 function loadProfile(){try{return Object.assign(defaultProfile(),JSON.parse(localStorage.getItem(STORE)||'{}'))}catch(e){return defaultProfile()}}
 function saveProfile(){localStorage.setItem(STORE,JSON.stringify(profile))}
-let board=emptyBoard(),turn=BLACK,winner=EMPTY,moves=[],hint=null,solution=null,last=null,nodes=0,academy=null,profile=loadProfile(),thinking=false,winningCells=[];
-let audioCtx=null;
+
+let board=emptyBoard(), turn=BLACK, winner=EMPTY, moves=[], hint=null, solution=null, last=null, nodes=0, academy=null, profile=loadProfile(), thinking=false, winningCells=[], audioCtx=null;
+
 function status(text){$('status').textContent=text}
 function log(text){const d=document.createElement('div');d.textContent=text;$('log').prepend(d)}
-function initCoordinates(){const cols=Array.from({length:SIZE},(_,i)=>String.fromCharCode(65+i));const rows=Array.from({length:SIZE},(_,i)=>String(SIZE-i));const html=a=>a.map(v=>'<span>'+v+'</span>').join('');$('colsTop').innerHTML=html(cols);$('colsBottom').innerHTML=html(cols);$('rowsLeft').innerHTML=html(rows);$('rowsRight').innerHTML=html(rows)}
 function lineLength(b,p,player,dr,dc){let n=1;for(const s of[-1,1]){let r=p.r+dr*s,c=p.c+dc*s;while(inBounds(r,c)&&b[r][c]===player){n++;r+=dr*s;c+=dc*s}}return n}
 function lineCells(b,p,player,dr,dc){const cells=[{r:p.r,c:p.c}];for(const s of[-1,1]){let r=p.r+dr*s,c=p.c+dc*s;while(inBounds(r,c)&&b[r][c]===player){cells.push({r,c});r+=dr*s;c+=dc*s}}return cells.sort((a,b)=>a.r-b.r||a.c-b.c)}
 function winningLine(b,p,player,rules=$('rules').value){for(const [dr,dc] of DIRS){const cells=lineCells(b,p,player,dr,dc);if(rules==='freestyle'&&cells.length>=5)return cells;if(rules==='standard'&&cells.length===5)return cells}return[]}
@@ -187,13 +203,19 @@ function boardFull(b){return b.every(row=>row.every(Boolean))}
 function allLines(b){const lines=[];for(let i=0;i<SIZE;i++){lines.push(b[i]);lines.push(b.map(row=>row[i]))}for(let s=0;s<SIZE;s++){const a=[],b1=[],c=[],d=[];for(let k=0;k<SIZE;k++){if(inBounds(s+k,k))a.push(b[s+k][k]);if(s&&inBounds(k,s+k))b1.push(b[k][s+k]);if(inBounds(s+k,SIZE-1-k))c.push(b[s+k][SIZE-1-k]);if(s&&inBounds(k,SIZE-1-s-k))d.push(b[k][SIZE-1-s-k])}lines.push(a,b1,c,d)}return lines}
 function windowScore(line,player){const foe=other(player);let total=0;for(let i=0;i<=line.length-5;i++){const w=line.slice(i,i+5);const own=w.filter(x=>x===player).length;const opp=w.filter(x=>x===foe).length;if(own&&opp)continue;const open=(i>0&&line[i-1]===0?1:0)+(i+5<line.length&&line[i+5]===0?1:0);if(!opp)total+=[0,3,24,260,9500,1000000][own]*(open+1);if(!own)total-=[0,4,30,320,12000,1000000][opp]*(open+1)}return total}
 function evaluate(b,player){return allLines(b).filter(l=>l.length>=5).reduce((sum,l)=>sum+windowScore(l,player),0)}
+function legalMoves(b){const out=[];for(let r=0;r<SIZE;r++){for(let c=0;c<SIZE;c++){if(!b[r][c])out.push({r,c})}}return out}
 function candidates(b,radius=2,limit=30){const occ=[];b.forEach((row,r)=>row.forEach((v,c)=>{if(v)occ.push({r,c})}));if(!occ.length)return[{r:7,c:7}];const map=new Map();for(const p of occ){for(let dr=-radius;dr<=radius;dr++){for(let dc=-radius;dc<=radius;dc++){const r=p.r+dr,c=p.c+dc;if(inBounds(r,c)&&!b[r][c])map.set(r+','+c,{r,c})}}}return Array.from(map.values()).sort((a,b)=>Math.abs(7-a.r)+Math.abs(7-a.c)-Math.abs(7-b.r)-Math.abs(7-b.c)).slice(0,limit)}
-function scoreMoves(b,player,limit=34){const foe=other(player);return candidates(b,2,limit).map(p=>{const own=clone(b);own[p.r][p.c]=player;if(isWin(own,p,player))return{r:p.r,c:p.c,score:20000000};const block=clone(b);block[p.r][p.c]=foe;const blocks=isWin(block,p,foe);return{r:p.r,c:p.c,score:evaluate(own,player)+(blocks?9000000:0)}}).sort((a,b)=>(b.score||0)-(a.score||0))}
+function immediateWinningMoves(b,player){return legalMoves(b).filter(p=>{const next=clone(b);next[p.r][p.c]=player;return isWin(next,p,player)})}
+function quickMoveScore(b,p,player){const foe=other(player),next=clone(b);next[p.r][p.c]=player;const ownThreats=immediateWinningMoves(next,player).length;const foeThreats=immediateWinningMoves(next,foe).length;return evaluate(next,player)+ownThreats*4500000-foeThreats*5500000-Math.abs(7-p.r)*6-Math.abs(7-p.c)*6}
+function bestMoveFrom(b,moves,player){return moves.map(p=>({r:p.r,c:p.c,score:quickMoveScore(b,p,player)})).sort((a,b)=>(b.score||0)-(a.score||0))[0]||null}
+function tacticalMove(b,player){const foe=other(player);const wins=immediateWinningMoves(b,player);if(wins.length)return Object.assign(bestMoveFrom(b,wins,player),{reason:'win'});const blocks=immediateWinningMoves(b,foe);if(blocks.length)return Object.assign(bestMoveFrom(b,blocks,player),{reason:'block'});const forcing=candidates(b,2,60).map(p=>{const next=clone(b);next[p.r][p.c]=player;return{r:p.r,c:p.c,threats:immediateWinningMoves(next,player).length,score:quickMoveScore(b,p,player)}}).filter(m=>m.threats>=2).sort((a,b)=>b.threats-a.threats||b.score-a.score);if(forcing.length)return Object.assign(forcing[0],{reason:'fork'});return null}
+function scoreMoves(b,player,limit=34){const foe=other(player);return candidates(b,2,limit).map(p=>{const own=clone(b);own[p.r][p.c]=player;if(isWin(own,p,player))return{r:p.r,c:p.c,score:40000000};const block=clone(b);block[p.r][p.c]=foe;const blocks=isWin(block,p,foe);return{r:p.r,c:p.c,score:evaluate(own,player)+(blocks?30000000:0)}}).sort((a,b)=>(b.score||0)-(a.score||0))}
 function keyOf(b,player,depth){return player+'|'+depth+'|'+b.map(r=>r.join('')).join('')}
-function minimax(b,depth,alpha,beta,maxing,ai,lastMove,cache){nodes++;if(lastMove&&isWin(b,lastMove,lastMove.player))return lastMove.player===ai?10000000+depth:-10000000-depth;if(!depth||boardFull(b))return evaluate(b,ai);const key=keyOf(b,maxing?ai:other(ai),depth);if(cache.has(key))return cache.get(key);const player=maxing?ai:other(ai);const moveset=scoreMoves(b,player,depth>=3?10:14);let value=maxing?-Infinity:Infinity;for(const m of moveset){const next=clone(b);next[m.r][m.c]=player;const val=minimax(next,depth-1,alpha,beta,!maxing,ai,{r:m.r,c:m.c,player},cache);if(maxing){value=Math.max(value,val);alpha=Math.max(alpha,value)}else{value=Math.min(value,val);beta=Math.min(beta,value)}if(beta<=alpha)break}cache.set(key,value);return value}
-function chooseAI(b,player,level){const s=LEVELS[level]||LEVELS.Intermediate;let ranked=scoreMoves(b,player,s.limit);if(!ranked.length)return null;if(Math.random()<s.blunder)return ranked[Math.min(ranked.length-1,2+Math.floor(Math.random()*4))];if(!s.depth){const n=Math.min(5,ranked.length);return ranked[Math.floor(Math.random()*n)]}nodes=0;const cache=new Map();ranked=ranked.map(m=>{const next=clone(b);next[m.r][m.c]=player;const forced=isWin(next,m,player)?20000000:minimax(next,s.depth-1,-Infinity,Infinity,false,player,{r:m.r,c:m.c,player},cache);return{r:m.r,c:m.c,score:forced+(m.score||0)*.01+Math.random()*s.noise}}).sort((a,b)=>b.score-a.score);return ranked[0]}
+function minimax(b,depth,alpha,beta,maxing,ai,lastMove,cache){nodes++;if(lastMove&&isWin(b,lastMove,lastMove.player))return lastMove.player===ai?10000000+depth:-10000000-depth;if(!depth||boardFull(b))return evaluate(b,ai);const key=keyOf(b,maxing?ai:other(ai),depth);if(cache.has(key))return cache.get(key);const player=maxing?ai:other(ai);const urgent=tacticalMove(b,player);const moveset=urgent?[urgent]:scoreMoves(b,player,depth>=3?12:16);let value=maxing?-Infinity:Infinity;for(const m of moveset){const next=clone(b);next[m.r][m.c]=player;const val=minimax(next,depth-1,alpha,beta,!maxing,ai,{r:m.r,c:m.c,player},cache);if(maxing){value=Math.max(value,val);alpha=Math.max(alpha,value)}else{value=Math.min(value,val);beta=Math.min(beta,value)}if(beta<=alpha)break}cache.set(key,value);return value}
+function chooseAI(b,player,level){nodes=0;const forced=tacticalMove(b,player);if(forced)return forced;const s=LEVELS[level]||LEVELS.Intermediate;let ranked=scoreMoves(b,player,s.limit);if(!ranked.length)return null;if(Math.random()<s.blunder)return ranked[Math.min(ranked.length-1,2+Math.floor(Math.random()*4))];const cache=new Map();ranked=ranked.map(m=>{const next=clone(b);next[m.r][m.c]=player;const forcedScore=isWin(next,m,player)?40000000:minimax(next,s.depth-1,-Infinity,Infinity,false,player,{r:m.r,c:m.c,player},cache);return{r:m.r,c:m.c,score:forcedScore+(m.score||0)*.01+Math.random()*s.noise}}).sort((a,b)=>b.score-a.score);return ranked[0]}
 function sameCell(a,b){return a&&b&&a.r===b.r&&a.c===b.c}
 function isWinningCell(r,c){return winningCells.some(p=>p.r===r&&p.c===c)}
+
 function render(){
   const el=$('board');el.innerHTML='';
   for(let r=0;r<SIZE;r++){
@@ -226,7 +248,7 @@ function jingle(kind){const ctx=ensureAudio();if(!ctx)return;const play=()=>sche
 function declaration(kind,title,text){const box=$('declaration');$('declareTitle').textContent=title;$('declareText').textContent=text;box.className='declaration show '+(kind==='lose'?'defeat':kind==='draw'?'draw':'');}
 function clearDeclaration(){const box=$('declaration');box.className='declaration';$('declareTitle').textContent='';$('declareText').textContent=''}
 function setAnalysis(title,body){$('analysis').innerHTML='<h3>'+title+'</h3><p>'+body+'</p>'}
-function describeMove(p,player,source,line){const actor=source==='ai'?'AI':nameOf(player);const foe=other(player);const moveLabel=notation(p);if(line&&line.length)return '<strong>'+actor+' at '+moveLabel+'</strong> completed '+line.length+' in a row. The decisive stones are '+line.map(notation).join(' · ')+'.';const own=clone(board);const bestOwn=scoreMoves(own,player,4)[0];const rivalBoard=clone(board);const rivalThreat=scoreMoves(rivalBoard,foe,1)[0];let phrase='<strong>'+actor+' played '+moveLabel+'</strong>. ';if(rivalThreat&&rivalThreat.score>=9000000)phrase+='The next urgent task is defence: '+nameOf(foe)+' is threatening around '+notation(rivalThreat)+'. ';else if(bestOwn&&bestOwn.score>=9000000)phrase+='This position now has a forcing continuation near '+notation(bestOwn)+'. ';else if(bestOwn)phrase+='The strongest follow-up candidate is '+notation(bestOwn)+', which improves shape or pressure. ';return phrase+'Keep scanning for immediate wins, compulsory blocks and fork threats before playing quiet extensions.'}
+function describeMove(p,player,source,line){const actor=source==='ai'?'AI':nameOf(player);const foe=other(player);const moveLabel=notation(p);if(line&&line.length)return '<strong>'+actor+' at '+moveLabel+'</strong> completed '+line.length+' in a row. The decisive stones are '+line.map(notation).join(' · ')+'.';const rivalWins=immediateWinningMoves(board,foe);const ownFork=tacticalMove(board,player);const bestOwn=scoreMoves(board,player,4)[0];let phrase='<strong>'+actor+' played '+moveLabel+'</strong>. ';if(rivalWins.length)phrase+='Urgent defence remains: '+nameOf(foe)+' has an immediate winning point at '+rivalWins.map(notation).join(' or ')+'. ';else if(ownFork&&ownFork.reason==='fork')phrase+='This position contains a forcing fork candidate near '+notation(ownFork)+'. ';else if(bestOwn&&bestOwn.score>=30000000)phrase+='There is a direct tactical block or conversion near '+notation(bestOwn)+'. ';else if(bestOwn)phrase+='The strongest follow-up candidate is '+notation(bestOwn)+', which improves shape or pressure. ';return phrase+'The AI now checks immediate wins and compulsory blocks before search depth, noise or difficulty blunders.'}
 function tutorialCommentary(ok,p,scenario){return ok?'<strong>Correct tutorial move at '+notation(p)+'.</strong> It converts the pattern into a forcing line before the opponent can stabilise.':'<strong>Tutorial miss at '+notation(p)+'.</strong> The stronger move is '+notation(scenario.solutions[0])+', because it creates or completes the forcing line.'}
 function outcomeFor(player){
   if($('mode').value==='ai'){
@@ -257,7 +279,7 @@ function newGame(){board=emptyBoard();turn=BLACK;winner=EMPTY;moves=[];hint=null
 function undo(){if(thinking||!moves.length)return;const n=$('mode').value==='ai'&&moves.length>1?2:1;for(let i=0;i<n;i++)moves.pop();board=emptyBoard();moves.forEach(m=>board[m.r][m.c]=m.player);winner=EMPTY;winningCells=[];last=moves[moves.length-1]||null;turn=moves.length%2?WHITE:BLACK;hint=null;solution=null;academy=null;clearDeclaration();status(nameOf(turn)+' to move.');$('log').innerHTML='';moves.slice().reverse().forEach((m,i)=>log((moves.length-i)+'. '+nameOf(m.player)+' '+notation(m)));render()}
 function hintMove(){if(winner||thinking)return;const best=scoreMoves(board,turn,30)[0];if(!best)return;hint={r:best.r,c:best.c};profile.hints++;status('Master hint: consider '+notation(hint)+'.');render()}
 function rank(){const score=profile.wins*5+profile.puzzlesSolved*2-profile.hints+profile.bestStreak*3;if(score>420)return'Master';if(score>240)return'Expert';if(score>120)return'Tactician';if(score>50)return'Apprentice';return'Rookie'}
-function renderCoach(){const total=Math.max(1,profile.puzzleAttempts);const acc=Math.round(profile.puzzlesSolved/total*100);const wr=Math.round(profile.wins/Math.max(1,profile.games)*100);const style=profile.defenceMoves>profile.attackMoves*1.15?'Guardian':profile.attackMoves>profile.defenceMoves*1.35?'Initiator':acc>72?'Calculator':'Builder';$('coachPanel').innerHTML='<article><h3>'+rank()+' · '+style+'</h3><p>Win rate '+wr+'% across '+profile.games+' AI games. Tactical accuracy '+acc+'% across '+profile.puzzleAttempts+' Academy attempts.</p></article><article><h3>Recommended focus</h3><p>'+(style==='Initiator'?'Block urgent threats before extending attacks.':style==='Guardian'?'Convert defence into counter-threats.':style==='Calculator'?'Study multi-threat forks and long diagonals.':'Build open threes before rushing closed fours.')+'</p></article><article><h3>End-game feedback</h3><p>Outcome text is explicit: “Victory! You win.”, “Defeat. The AI wins.”, “Black wins!”, “White wins!” or “Draw game.” Two-player duel victories are declared over the board as Black wins! or White wins!, the winning line glows, and a local jingle plays unless muted.</p></article>'}
+function renderCoach(){const total=Math.max(1,profile.puzzleAttempts);const acc=Math.round(profile.puzzlesSolved/total*100);const wr=Math.round(profile.wins/Math.max(1,profile.games)*100);const style=profile.defenceMoves>profile.attackMoves*1.15?'Guardian':profile.attackMoves>profile.defenceMoves*1.35?'Initiator':acc>72?'Calculator':'Builder';$('coachPanel').innerHTML='<article><h3>'+rank()+' · '+style+'</h3><p>Win rate '+wr+'% across '+profile.games+' AI games. Tactical accuracy '+acc+'% across '+profile.puzzleAttempts+' Academy attempts.</p></article><article><h3>Recommended focus</h3><p>'+(style==='Initiator'?'Block urgent threats before extending attacks.':style==='Guardian'?'Convert defence into counter-threats.':style==='Calculator'?'Study multi-threat forks and long diagonals.':'Build open threes before rushing closed fours.')+'</p></article><article><h3>End-game feedback</h3><p>Outcome text is explicit: “Victory! You win.”, “Defeat. The AI wins.”, “Black wins!”, “White wins!” or “Draw game.” Two-player duel victories are declared over the board as Black wins! or White wins!, the winning line glows, and a local jingle plays unless muted. The AI tactical layer now always checks immediate wins and compulsory blocks before difficulty noise is allowed.</p></article>'}
 function initLearn(){$('learnPanel').innerHTML=LESSONS.map((x,i)=>'<article><h3>'+String(i+1).padStart(2,'0')+' · '+x[0]+'</h3><p>'+x[1]+'</p></article>').join('')+'<article><h3>Standalone design</h3><p>This Lite build intentionally removes online rooms, service-worker assumptions and external assets. It is a direct-open HTML app for clinics, workshops, schools, travel and locked-down computers.</p></article>'}
 function motif(i){const base=[{r:7,c:7,p:BLACK},{r:7,c:8,p:BLACK},{r:7,c:9,p:BLACK},{r:7,c:11,p:BLACK},{r:6,c:7,p:WHITE},{r:8,c:8,p:WHITE},{r:6,c:10,p:WHITE}];const sol={r:7,c:10};if(i%3===1){base.forEach(x=>{const t=x.r;x.r=x.c;x.c=t});const t=sol.r;sol.r=sol.c;sol.c=t}if(i%3===2){base.forEach(x=>{x.r=14-x.r});sol.r=14-sol.r}const offR=(Math.floor(i/3)-1)*2,offC=((i%3)-1)*2;base.forEach(x=>{x.r=Math.max(0,Math.min(14,x.r+offR));x.c=Math.max(0,Math.min(14,x.c+offC))});sol.r=Math.max(0,Math.min(14,sol.r+offR));sol.c=Math.max(0,Math.min(14,sol.c+offC));return{stones:base,solution:sol}}
 function makeScenarios(){const list=[];let id=1;CHAPTERS.forEach((ch,ci)=>{for(let i=0;i<9;i++){const m=motif((ci+i)%9);const b=emptyBoard();m.stones.forEach(s=>b[s.r][s.c]=s.p);list.push({id:id++,chapter:ch,title:ch+' pattern '+(i+1),board:b,player:BLACK,solutions:[m.solution],lesson:'This move completes or creates the forcing line before the opponent can stabilise.'})}});return list}
