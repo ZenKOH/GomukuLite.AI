@@ -40,9 +40,25 @@ GomukuLite.AI avoids those assumptions by putting CSS, UI, game logic, AI, Acade
 - Keyboard-accessible board
 - Zero external assets
 
-## Exact outcome declarations
+## Move analysis and commentary upgrade
 
-The upgraded build now treats the final game state as a first-class feedback moment with exact wording:
+The latest build removes the static outcome reminder note from the sidebar and replaces it with an AI-style commentary panel.
+
+The commentary is generated locally from the current board state and explains each move in practical tactical language:
+
+- whether the move completed a win;
+- whether the next urgent task is defence;
+- whether a forcing continuation is available;
+- where the strongest follow-up candidate appears;
+- how Academy/tutorial attempts relate to the hidden solution.
+
+The commentary remains offline and deterministic. It does not call any external AI service, server or model endpoint.
+
+## Board-centred declaration overlay
+
+Outcome declarations now appear over the board itself rather than in the side panel. The declaration is centred near the top of the board and uses an exclamation-style badge for stronger end-game feedback.
+
+Exact wording remains:
 
 - AI mode, human wins: `Victory! You win.`
 - AI mode, AI wins: `Defeat. The AI wins.`
@@ -50,20 +66,25 @@ The upgraded build now treats the final game state as a first-class feedback mom
 - Local two-player mode, White wins: `White wins!`
 - Full board: `Draw game.`
 
-The app now uses one outcome function to choose the correct declaration by mode and winner, so the status pill, declaration card and move log stay aligned.
+The status pill, board overlay and move log all remain aligned to the same outcome logic.
 
-## End-game feedback upgrade
+## End-game and tutorial feedback upgrade
 
 When a match completes:
 
 - winning-line detection returns the exact contiguous line that satisfied the selected ruleset;
 - the winning stones receive a pulsing glow animation;
-- the side panel shows the exact outcome declaration;
+- the board-centred overlay shows the exact declaration;
 - Web Audio jingles play locally for win, loss and draw outcomes;
 - a Jingle selector lets the player mute sounds without affecting the offline build;
 - reduced-motion users still see the static highlight without animation.
 
-The audio is generated with browser oscillators. There are no sound files, CDN calls or external media assets.
+Academy/tutorial attempts now receive the same treatment:
+
+- correct attempts show `Tutorial victory!`, highlight the completed line or solution point, play the win jingle and generate tutorial commentary;
+- missed attempts show `Tutorial miss.`, highlight the hidden solution, play the loss jingle and explain why the solution is stronger.
+
+The audio is generated with browser oscillators. There are no sound files, CDN calls or external media assets. The upgraded version now unlocks/resumes Web Audio on pointer or keyboard interaction and schedules the jingle only after the audio context is available, improving reliability on browsers that block sound until user interaction.
 
 ## Why the implementation is intentionally constrained
 
@@ -88,7 +109,7 @@ The Academy positions are generated from transformed motifs rather than stored a
 
 The local coach is deliberately lightweight. It uses games, puzzle attempts, hints and simple play-style signals rather than pretending to infer a sophisticated psychological profile from sparse data.
 
-The end-game jingle uses Web Audio rather than bundled audio files to preserve the one-file offline guarantee. Some browsers may require the user to interact with the page before audio can play; the game resumes/initialises audio during player actions.
+The end-game jingle uses Web Audio rather than bundled audio files to preserve the one-file offline guarantee. Some browsers may still require the user to interact with the page before audio can play; the game now listens for early pointer and keyboard interaction to unlock sound sooner.
 
 ## Future improvements
 
@@ -100,3 +121,4 @@ The end-game jingle uses Web Audio rather than bundled audio files to preserve t
 6. Add more hand-authored tactical motifs.
 7. Add offline print mode for classroom worksheets.
 8. Add a settings panel for alternate sound themes and colour-blind-safe highlight palettes.
+9. Add richer post-game move review with move-by-move mistake classification.
