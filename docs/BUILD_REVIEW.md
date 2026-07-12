@@ -40,13 +40,25 @@ GomukuLite.AI avoids those assumptions by putting CSS, UI, game logic, AI, Acade
 - Keyboard-accessible board
 - Zero external assets
 
+## Exact outcome declarations
+
+The upgraded build now treats the final game state as a first-class feedback moment with exact wording:
+
+- AI mode, human wins: `Victory! You win.`
+- AI mode, AI wins: `Defeat. The AI wins.`
+- Local two-player mode, Black wins: `Black wins!`
+- Local two-player mode, White wins: `White wins!`
+- Full board: `Draw game.`
+
+The app now uses one outcome function to choose the correct declaration by mode and winner, so the status pill, declaration card and move log stay aligned.
+
 ## End-game feedback upgrade
 
-The latest build adds a clearer end-game moment when a match completes:
+When a match completes:
 
-- winning-line detection now returns the exact contiguous line that satisfied the selected ruleset;
+- winning-line detection returns the exact contiguous line that satisfied the selected ruleset;
 - the winning stones receive a pulsing glow animation;
-- the side panel shows a declaration such as `Victory! You win.`, `Defeat. The AI wins.`, `Black wins!`, `White wins!` or `Draw game.`;
+- the side panel shows the exact outcome declaration;
 - Web Audio jingles play locally for win, loss and draw outcomes;
 - a Jingle selector lets the player mute sounds without affecting the offline build;
 - reduced-motion users still see the static highlight without animation.
